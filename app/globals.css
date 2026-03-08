@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+:root {
+  --plyr-color-main: #ff5400;
+  --plyr-video-control-background-hover: rgba(255, 84, 0, 0.1);
+  --plyr-control-radius: 12px;
+  --plyr-range-fill-background: #ff5400;
+}
+
+/* Optional: Make the big play button slightly rounded/modern */
+.plyr--full-ui.plyr--video .plyr__control--overlaid {
+  background: rgba(255, 84, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
