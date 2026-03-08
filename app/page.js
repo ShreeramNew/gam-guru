@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Lock, Play, Video, ChevronRight } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Lock, Play, Video, ChevronRight, RotateCcw } from "lucide-react";
 
 // --- CONFIGURATION ---
 const PAGE_PASSWORD = "gurupada";
@@ -21,8 +21,8 @@ export default function NagaStutiPage() {
   const [activeVideoId, setActiveVideoId] = useState(VIDEOS[0].id);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
-  // Fix for Hydration errors
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -43,9 +43,9 @@ export default function NagaStutiPage() {
     return (
       <div className="min-h-screen bg-[#0a0909] flex items-center justify-center p-6 font-sans">
         <div className="w-full max-w-md bg-[#141313] border border-zinc-800 p-8 rounded-2xl shadow-2xl">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 text-[#ff5400]">
             <div className="p-4 bg-orange-500/10 rounded-full">
-              <Lock className="text-[#ff5400] w-8 h-8" />
+              <Lock size={32} />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white text-center mb-2">
@@ -54,20 +54,18 @@ export default function NagaStutiPage() {
           <p className="text-zinc-500 text-center mb-8 text-sm italic">
             Powered by {POWERED_BY}
           </p>
-
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
-              autoComplete="new-password"
               placeholder="Enter Password"
-              className="w-full bg-zinc-900 border border-zinc-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#ff5400] transition-colors"
+              className="w-full bg-zinc-900 border border-zinc-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#ff5400]"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            {error && <p className="text-red-500 text-xs mt-2 ml-1">{error}</p>}
+            {error && <p className="text-red-500 text-xs">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-[#ff5400] hover:bg-[#e64d00] text-white font-bold py-3 rounded-lg transition-all cursor-pointer"
+              className="w-full bg-[#ff5400] text-white font-bold py-3 rounded-lg cursor-pointer transition-transform active:scale-95"
             >
               Access Videos
             </button>
@@ -78,14 +76,14 @@ export default function NagaStutiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0909] text-[#e5e7eb] font-sans pb-10">
+    <div className="min-h-screen bg-[#0a0909] text-[#e5e7eb] pb-10">
       <header className="border-b border-zinc-900 bg-[#0a0909]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white uppercase italic">
+            <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">
               {TITLE}
             </h1>
-            <p className="text-[10px] text-zinc-500 tracking-widest uppercase">
+            <p className="text-[10px] text-zinc-500 tracking-widest uppercase mt-1">
               Powered by{" "}
               <span className="text-[#ff5400] font-bold">{POWERED_BY}</span>
             </p>
@@ -97,45 +95,56 @@ export default function NagaStutiPage() {
       <main className="max-w-7xl mx-auto px-6 pt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
-            {/* THE SECURITY SHIELD: 
-                This invisible div blocks the initial click on the YouTube "Watch on YouTube" buttons. 
-                It makes the iframe 'read-only' for the first interaction. */}
-            <div
-              className="absolute inset-0 z-20 pointer-events-auto bg-transparent"
-              onClick={(e) => {
-                e.currentTarget.style.display = "none"; // Hide shield when user clicks to play
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
-                <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+            {/* MOBILE OVERLAY: This forces a "user gesture" which mobile browsers require */}
+            {!isReady && (
+              <div className="absolute inset-0 z-30 bg-black flex flex-col items-center justify-center space-y-4 p-4 text-center">
+                <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center animate-pulse">
                   <Play fill="white" className="text-white ml-1" />
                 </div>
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                  Tap to Load Player
+                </p>
+                <button
+                  onClick={() => setIsReady(true)}
+                  className="absolute inset-0 w-full h-full cursor-pointer"
+                />
               </div>
-            </div>
+            )}
 
-            <iframe
-              key={activeVideoId}
-              src={`https://www.youtube-nocookie.com/embed/${activeVideoId}?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&autoplay=1`}
-              title="Video player"
-              frameBorder="0"
-              // SANDBOX: This is the critical part that prevents redirects to the app/site
-              sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-presentation"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full z-10"
-            ></iframe>
+            {isReady && (
+              <iframe
+                key={activeVideoId}
+                src={`https://www.youtube-nocookie.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${typeof window !== "undefined" ? window.location.origin : ""}`}
+                title="Player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full z-10"
+              />
+            )}
+
+            {/* THE HEADER SHIELD: Blocks clicks on the title to prevent redirect */}
+            <div className="absolute top-0 left-0 w-full h-14 z-20 bg-transparent pointer-events-auto" />
           </div>
 
-          <div className="p-4 bg-[#141313] rounded-xl border border-zinc-900">
-            <h2 className="text-xl font-bold text-white mb-1">
-              {VIDEOS.find((v) => v.id === activeVideoId)?.title}
-            </h2>
-            <p className="text-sm text-zinc-500 italic">
-              Official Stuti Series
-            </p>
+          <div className="p-4 bg-[#141313] rounded-xl border border-zinc-900 flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-bold text-white mb-1">
+                {VIDEOS.find((v) => v.id === activeVideoId)?.title}
+              </h2>
+              <p className="text-sm text-zinc-500 italic">Official Series</p>
+            </div>
+            <button
+              onClick={() => setIsReady(false)}
+              className="p-2 text-zinc-600 hover:text-[#ff5400] transition-colors"
+              title="Reset Player"
+            >
+              <RotateCcw size={18} />
+            </button>
           </div>
         </div>
 
+        {/* Sidebar */}
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest px-1">
             Up Next
@@ -146,9 +155,7 @@ export default function NagaStutiPage() {
                 key={video.id}
                 onClick={() => {
                   setActiveVideoId(video.id);
-                  // Ensure shield comes back if it was hidden
-                  const shield = document.querySelector(".z-20");
-                  if (shield) shield.style.display = "flex";
+                  setIsReady(true);
                 }}
                 className={`flex items-center p-3 rounded-xl border transition-all duration-300 text-left group cursor-pointer ${
                   activeVideoId === video.id
@@ -180,6 +187,13 @@ export default function NagaStutiPage() {
               </button>
             ))}
           </div>
+
+          {/* <button
+            onClick={() => setIsAuthorized(false)}
+            className="w-full mt-4 py-3 border border-zinc-800 rounded-xl text-zinc-600 text-xs font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-all cursor-pointer"
+          >
+            Lock Gallery
+          </button> */}
         </div>
       </main>
     </div>
