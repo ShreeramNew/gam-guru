@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Naga Stuti | Gam Guru",
+  title: "Guru Ashtakam | Gam Guru",
   description:
     "Traditional learning and stutis powered by Gam Guru - Sanatan After School",
 };
