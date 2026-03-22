@@ -1,24 +1,53 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Lock, Play, Video, ChevronRight, RotateCcw } from "lucide-react";
 
 // --- CONFIGURATION ---
 const PAGE_PASSWORD = "gurupada";
 const POWERED_BY = "Gam Guru - Sanatan After School";
-const TITLE = "Naga Stuti";
+const TITLE = "Guru Ashtakam";
 
+// Video data sorted by Day
 const VIDEOS = [
-  { id: "6KxP6j0p6Lc", title: "Naga Stuti - Part 1" },
-  { id: "9nsxyX9pknk", title: "Naga Stuti - Part 2" },
-  { id: "5P3s1VN2KIs", title: "Naga Stuti - Part 3" },
-  { id: "w_pZICfm76U", title: "Naga Stuti - Part 4" },
+  { 
+    title: "Guru Ashtakam - Day 1", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181109/Guru_Ashtakam_-_1st_Stanza___Day_-_1___Sanatan_Slokas___A_Self_Learning_Module_jmpn8u.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 2", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181083/Guru_Ashtakam_2nd_Stanza___Day_2___Sanatan_Slokas___A_Self_Learning_Module_ob7jj6.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 3", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181094/Guru_Ashtakam_3rd_Stanza___Day_3___Sanatan_Slokas___A_Self_Learning_Module_wtr36y.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 4", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181107/Guru_Ashtakam_4th_Stanza___Day_-_4___Sanatan_Slokas___A_Self_Learning_Module_aojtke.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 5", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181114/Guru_Ashtakam_5th_Stanza___Day_5___Sanatan_Slokas___A_Self_Learning_Module_g40lwv.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 6", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181121/Guru_Ashtakam_6th_Stanza___Day_6___Sanatan_Slokas___A_Self_Learning_Module_svqqso.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 7", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181099/Guru_Ashtakam_7th_Stanza___Day_7___Sanatan_Slokas___A_Self_Learning_Module_dzsrqu.mp4" 
+  },
+  { 
+    title: "Guru Ashtakam - Day 8", 
+    url: "https://res.cloudinary.com/dpk2vteaw/video/upload/v1774181128/Guru_Ashtakam_8th_Stanza___Day_8___Sanatan_Slokas___A_Self_Learning_Module_c5imgn.mp4" 
+  },
 ];
 
-export default function NagaStutiPage() {
+export default function GuruAshtakamPage() {
   const [password, setPassword] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [activeVideoId, setActiveVideoId] = useState(VIDEOS[0].id);
+  const [activeVideo, setActiveVideo] = useState(VIDEOS[0]);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -36,6 +65,9 @@ export default function NagaStutiPage() {
       setError("Incorrect password.");
     }
   };
+
+  // Helper to generate a thumbnail from the Cloudinary video URL
+  const getThumbnail = (url) => url.replace(".mp4", ".jpg");
 
   if (!isClient) return <div className="min-h-screen bg-[#0a0909]" />;
 
@@ -95,44 +127,52 @@ export default function NagaStutiPage() {
       <main className="max-w-7xl mx-auto px-6 pt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
-            {/* MOBILE OVERLAY: This forces a "user gesture" which mobile browsers require */}
             {!isReady && (
               <div className="absolute inset-0 z-30 bg-black flex flex-col items-center justify-center space-y-4 p-4 text-center">
-                <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center animate-pulse">
-                  <Play fill="white" className="text-white ml-1" />
+                <div className="relative w-full h-full">
+                   <img 
+                    src={getThumbnail(activeVideo.url)} 
+                    alt="preview" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-40"
+                   />
+                   <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center animate-pulse mb-4">
+                        <Play fill="white" className="text-white ml-1" />
+                      </div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-white">
+                        Tap to Start Learning
+                      </p>
+                   </div>
                 </div>
-                <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                  Tap to Load Player
-                </p>
                 <button
                   onClick={() => setIsReady(true)}
-                  className="absolute inset-0 w-full h-full cursor-pointer"
+                  className="absolute inset-0 w-full h-full cursor-pointer z-40"
                 />
               </div>
             )}
 
             {isReady && (
-              <iframe
-                key={activeVideoId}
-                src={`https://www.youtube-nocookie.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${typeof window !== "undefined" ? window.location.origin : ""}`}
-                title="Player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-                allowFullScreen
+              <video
+                key={activeVideo.url}
+                controls
+                autoPlay
+                controlsList="nodownload"
+                onContextMenu={(e) => e.preventDefault()}
                 className="absolute inset-0 w-full h-full z-10"
-              />
+                poster={getThumbnail(activeVideo.url)}
+              >
+                <source src={activeVideo.url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             )}
-
-            {/* THE HEADER SHIELD: Blocks clicks on the title to prevent redirect */}
-            <div className="absolute top-0 left-0 w-full h-14 z-20 bg-transparent pointer-events-auto" />
           </div>
 
           <div className="p-4 bg-[#141313] rounded-xl border border-zinc-900 flex justify-between items-center">
             <div>
               <h2 className="text-xl font-bold text-white mb-1">
-                {VIDEOS.find((v) => v.id === activeVideoId)?.title}
+                {activeVideo.title}
               </h2>
-              <p className="text-sm text-zinc-500 italic">Official Series</p>
+              <p className="text-sm text-zinc-500 italic">Self Learning Module</p>
             </div>
             <button
               onClick={() => setIsReady(false)}
@@ -147,53 +187,46 @@ export default function NagaStutiPage() {
         {/* Sidebar */}
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest px-1">
-            Up Next
+            Course Modules
           </h3>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-3 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
             {VIDEOS.map((video) => (
               <button
-                key={video.id}
+                key={video.url}
                 onClick={() => {
-                  setActiveVideoId(video.id);
+                  setActiveVideo(video);
                   setIsReady(true);
                 }}
                 className={`flex items-center p-3 rounded-xl border transition-all duration-300 text-left group cursor-pointer ${
-                  activeVideoId === video.id
+                  activeVideo.url === video.url
                     ? "bg-orange-500/10 border-orange-500/50 text-[#ff5400]"
                     : "bg-[#141313] border-zinc-800 hover:border-zinc-600 text-zinc-400"
                 }`}
               >
                 <div className="mr-4 h-12 w-20 bg-zinc-800 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                   <img
-                    src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
+                    src={getThumbnail(video.url)}
                     alt={video.title}
                     className="object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-opacity"
                   />
-                  {activeVideoId === video.id && (
-                    <Play size={16} fill="currentColor" />
+                  {activeVideo.url === video.url && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-orange-500/20">
+                        <Play size={16} fill="currentColor" />
+                    </div>
                   )}
                 </div>
                 <div className="flex-grow">
-                  <p
-                    className={`text-sm font-semibold truncate ${activeVideoId === video.id ? "text-white" : ""}`}
-                  >
+                  <p className={`text-sm font-semibold truncate ${activeVideo.url === video.url ? "text-white" : ""}`}>
                     {video.title}
                   </p>
                 </div>
                 <ChevronRight
                   size={16}
-                  className={`ml-2 ${activeVideoId === video.id ? "opacity-100" : "opacity-0"}`}
+                  className={`ml-2 ${activeVideo.url === video.url ? "opacity-100" : "opacity-0"}`}
                 />
               </button>
             ))}
           </div>
-
-          {/* <button
-            onClick={() => setIsAuthorized(false)}
-            className="w-full mt-4 py-3 border border-zinc-800 rounded-xl text-zinc-600 text-xs font-bold uppercase tracking-[0.2em] hover:text-red-500 transition-all cursor-pointer"
-          >
-            Lock Gallery
-          </button> */}
         </div>
       </main>
     </div>
