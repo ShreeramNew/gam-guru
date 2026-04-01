@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Yatra_One, Nunito } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,10 +11,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const yatra = Yatra_One({
+  variable: "--font-yatra",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+});
+
 export const metadata = {
-  title: "Guru Ashtakam | Gam Guru",
+  title: "Shlokabhyasa | Gam Guru",
   description:
-    "Traditional learning and stutis powered by Gam Guru - Sanatan After School",
+    "Learn Sanatan Shlokas online. Traditional learning powered by Gam Guru - Sanatan After School",
 };
 
 export const viewport = {
@@ -26,7 +38,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0909] text-[#e5e7eb]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${yatra.variable} ${nunito.variable} antialiased bg-[#0a0909] text-[#e5e7eb]`}
       >
         {children}
       </body>
