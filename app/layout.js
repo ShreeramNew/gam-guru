@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Yatra_One, Nunito } from "next/font/google";
+import { Geist, Geist_Mono, Yatra_One, Nunito, Cinzel } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,6 +23,13 @@ const nunito = Nunito({
   weight: ["400", "600", "700", "800"],
 });
 
+// Added Cinzel for the sophisticated "Sanatan" look
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
 export const metadata = {
   title: "Shlokabhyasa | Gam Guru",
   description:
@@ -38,7 +45,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${yatra.variable} ${nunito.variable} antialiased bg-[#0a0909] text-[#e5e7eb]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${yatra.variable} ${nunito.variable} ${cinzel.variable} antialiased bg-[#0a0909] text-[#e5e7eb]`}
       >
         {children}
       </body>
