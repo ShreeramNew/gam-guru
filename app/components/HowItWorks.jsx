@@ -1,3 +1,6 @@
+"use client";
+import React from "react";
+
 const DAYS = [
   {
     day: 1,
@@ -92,100 +95,112 @@ const DAYS = [
 export default function HowItWorks() {
   return (
     <section
-      className="max-w-5xl mx-auto px-6 py-20"
-      style={{ fontFamily: "var(--font-nunito)" }}
+      className="w-full py-24 border-t border-white/5"
+      // Matching the Hero radial gradient for a seamless flow
+      style={{
+        background:
+          "radial-gradient(circle at center, #4a1a05 0%, #0d0c0c 100%)",
+      }}
     >
-      {/* Header */}
-      <div className="text-center mb-14">
-        <div className="inline-flex items-center gap-2 bg-orange-500/8 border border-orange-500/22 text-orange-400 text-[11px] font-bold px-3.5 py-1 rounded-full uppercase tracking-widest mb-4">
-          🗓 The Plan
+      {/* Background Texture bleeding edge-to-edge */}
+      <div
+        className="absolute inset-0 opacity-5 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff5400' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+
+      {/* Title block remains centered for readability */}
+      <div className="relative z-10 px-6 text-center mb-20">
+        <div
+          className="inline-flex items-center gap-2 bg-[#ff5400]/10 border border-[#ff5400]/30 text-[#ffb38a] text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] mb-6 cursor-default"
+          style={{ fontFamily: "var(--font-cinzel)" }}
+        >
+          🗓 The Journey
         </div>
         <h2
-          className="text-white mb-2.5"
+          className="text-white mb-4 uppercase font-black"
           style={{
-            fontFamily: "var(--font-yatra)",
-            fontSize: "clamp(28px, 4.5vw, 46px)",
-            lineHeight: 1.1,
+            fontFamily: "var(--font-cinzel)",
+            fontSize: "clamp(32px, 5vw, 56px)",
+            lineHeight: 1,
           }}
         >
           8 Days. Every Moment <span className="text-[#ff5400]">Mapped.</span>
         </h2>
-        <p className="text-sm text-zinc-500 font-semibold max-w-sm mx-auto leading-relaxed">
-          From the first Guru Vandana to the final Ashtakam — every step is
-          Seva.
-        </p>
+        <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#ff5400] to-transparent mx-auto mt-6" />
       </div>
 
-      {/* ── DESKTOP: horizontal track ── */}
-      <div className="hidden sm:block">
-        <div className="relative pt-4 pb-8">
-          {/* Connecting line */}
+      {/* ── DESKTOP: Edge-to-Edge Grid ── */}
+      <div className="hidden xl:block relative z-10 w-full px-4">
+        <div className="relative">
+          {/* Edge-to-edge connecting line */}
           <div
-            className="absolute left-0 right-0 h-px z-0"
+            className="absolute left-0 right-0 h-[1px] z-0"
             style={{
-              top: "38px",
+              top: "24px",
               background:
-                "linear-gradient(to right, transparent, #2a2828 8%, #2a2828 92%, transparent)",
+                "linear-gradient(to right, transparent, #ff540044 10%, #ff540044 90%, transparent)",
             }}
           />
-          <div className="grid grid-cols-8 relative z-10">
+          <div className="grid grid-cols-8 gap-3">
             {DAYS.map(({ day, type, label, duration, tasks }) => {
               const isLive = type === "live";
               return (
-                <div key={day} className="flex flex-col items-center">
-                  {/* Node — mt-1.5 prevents shadow clip */}
-                  <div
-                    className={`w-11 h-11 mt-1.5 rounded-full flex items-center justify-center text-sm z-10 flex-shrink-0 transition-transform hover:scale-110 ${
-                      isLive
-                        ? "bg-[#ff5400] text-white shadow-[0_0_0_5px_rgba(255,84,0,0.15),0_0_18px_rgba(255,84,0,0.22)]"
-                        : "bg-[#141212] text-[#ff5400] border border-orange-500/20"
-                    }`}
-                    style={{ fontFamily: "var(--font-yatra)" }}
-                  >
-                    {day}
+                <div key={day} className="flex flex-col group cursor-pointer">
+                  {/* Node - Centered in column */}
+                  <div className="flex justify-center mb-6">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm z-10 flex-shrink-0 transition-all duration-500 group-hover:scale-110 font-black shadow-2xl ${
+                        isLive
+                          ? "bg-[#ff5400] text-white shadow-[#ff5400]/40"
+                          : "bg-[#2a1104] text-[#ff5400] border border-[#ff5400]/30"
+                      }`}
+                      style={{ fontFamily: "var(--font-cinzel)" }}
+                    >
+                      {day}
+                    </div>
                   </div>
 
-                  {/* Connector */}
+                  {/* Card content adapts to grid width */}
                   <div
-                    className={`w-px ${isLive ? "h-6 bg-orange-500/30" : "h-3 bg-[#252323]"}`}
-                  />
-
-                  {/* Card */}
-                  <div
-                    className={`w-[calc(100%-8px)] rounded-xl p-2.5 border transition-all hover:-translate-y-1 hover:border-orange-500/20 ${
+                    className={`flex-1 rounded-xl p-4 border transition-all duration-500 group-hover:bg-[#ff5400]/5 ${
                       isLive
-                        ? "bg-orange-500/5 border-orange-500/25"
-                        : "bg-[#111010] border-[#1e1c1c]"
+                        ? "bg-[#ff5400]/10 border-[#ff5400]/40"
+                        : "bg-black/20 border-white/5"
                     }`}
                   >
                     <div
-                      className={`text-[9px] font-bold uppercase tracking-[1.5px] mb-0.5 ${isLive ? "text-[#ff5400]" : "text-zinc-700"}`}
+                      className="text-[10px] font-black text-[#ffb38a] uppercase tracking-widest mb-1"
+                      style={{ fontFamily: "var(--font-cinzel)" }}
                     >
                       Day {day}
                     </div>
                     <div
-                      className={`text-[10px] font-extrabold mb-1.5 ${isLive ? "text-orange-300" : "text-zinc-500"}`}
+                      className="text-[12px] font-black text-white uppercase mb-4"
+                      style={{ fontFamily: "var(--font-cinzel)" }}
                     >
                       {label}
                     </div>
-                    <div
-                      className={`h-px mb-1.5 ${isLive ? "bg-orange-500/15" : "bg-[#1e1c1c]"}`}
-                    />
-                    <div className="flex flex-col gap-1 mb-2">
+
+                    <div className="space-y-2 mb-6 min-h-[80px]">
                       {tasks.map((t) => (
                         <div
                           key={t}
-                          className="flex items-start gap-1 text-[9.5px] font-semibold text-zinc-600 leading-tight"
+                          className="flex items-start gap-2 text-[11px] font-bold text-zinc-400 leading-tight"
+                          style={{ fontFamily: "var(--font-nunito)" }}
                         >
                           <span
-                            className={`w-1 h-1 rounded-full flex-shrink-0 mt-1 ${isLive ? "bg-orange-500/50" : "bg-[#2e2c2c]"}`}
+                            className={`w-1 h-1 rounded-full flex-shrink-0 mt-1.5 ${isLive ? "bg-[#ff5400]" : "bg-zinc-700"}`}
                           />
                           {t}
                         </div>
                       ))}
                     </div>
+
                     <div
-                      className={`text-[9.5px] font-bold text-center py-1 rounded-md ${isLive ? "bg-orange-500/8 border border-orange-500/20 text-[#ff5400]" : "bg-[#0d0c0c] border border-[#252323] text-[#ff5400]"}`}
+                      className={`text-[10px] font-black text-center py-2 rounded-lg ${isLive ? "bg-[#ff5400] text-white" : "bg-white/5 text-[#ff5400]"}`}
+                      style={{ fontFamily: "var(--font-cinzel)" }}
                     >
                       {duration}
                     </div>
@@ -197,81 +212,76 @@ export default function HowItWorks() {
         </div>
       </div>
 
-      {/* ── MOBILE: vertical stepper ── */}
-      <div className="sm:hidden">
-        <div
-          className="relative flex flex-col"
-          style={{
-            "--line":
-              "linear-gradient(to bottom, #ff5400 0%, rgba(255,84,0,0.15) 60%, transparent 100%)",
-          }}
-        >
-          {/* Vertical line */}
+      {/* ── MOBILE & SMALL DESKTOP (Grid/Stack) ── */}
+      <div className="xl:hidden px-6 max-w-3xl mx-auto relative z-10">
+        <div className="relative flex flex-col space-y-6">
           <div
-            className="absolute w-px top-5 bottom-5 left-[21px]"
+            className="absolute w-[1px] top-6 bottom-6 left-[23px]"
             style={{
               background:
-                "linear-gradient(to bottom, #ff5400 0%, rgba(255,84,0,0.15) 70%, transparent 100%)",
+                "linear-gradient(to bottom, #ff5400 0%, #ff540011 100%)",
             }}
           />
 
           {DAYS.map(
-            ({ day, type, mobileTitle, mobileDuration, mobileTasks }, i) => {
+            ({ day, type, mobileTitle, mobileDuration, mobileTasks }) => {
               const isLive = type === "live";
-              const isLast = i === DAYS.length - 1;
               return (
                 <div
                   key={day}
-                  className={`flex gap-4 items-start relative ${!isLast ? "pb-4" : ""}`}
+                  className="flex gap-5 items-start group cursor-pointer"
                 >
-                  {/* Node */}
                   <div
-                    className={`w-11 h-11 rounded-full flex items-center justify-center text-sm flex-shrink-0 z-10 ${
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-sm flex-shrink-0 z-10 transition-all font-black ${
                       isLive
-                        ? "bg-[#ff5400] text-white shadow-[0_0_0_4px_rgba(255,84,0,0.15)]"
-                        : "bg-[#141212] text-[#ff5400] border border-orange-500/20"
+                        ? "bg-[#ff5400] text-white shadow-lg shadow-[#ff5400]/20"
+                        : "bg-[#2a1104] text-[#ff5400] border border-[#ff5400]/20"
                     }`}
-                    style={{ fontFamily: "var(--font-yatra)" }}
+                    style={{ fontFamily: "var(--font-cinzel)" }}
                   >
                     {day}
                   </div>
 
-                  {/* Card */}
                   <div
-                    className={`flex-1 rounded-2xl px-4 py-3.5 border ${
+                    className={`flex-1 rounded-2xl px-5 py-5 border transition-all ${
                       isLive
-                        ? "bg-orange-500/4 border-orange-500/28"
-                        : "bg-[#111010] border-[#1e1c1c]"
+                        ? "bg-[#ff5400]/10 border-[#ff5400]/40"
+                        : "bg-black/30 border-white/5"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="text-sm font-extrabold text-white">
+                    <div className="flex items-center justify-between mb-2">
+                      <span
+                        className="text-sm font-black text-white uppercase tracking-wider"
+                        style={{ fontFamily: "var(--font-cinzel)" }}
+                      >
                         {mobileTitle}
                       </span>
                       <span
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
+                        className={`text-[8px] font-black px-2 py-1 rounded uppercase tracking-tighter ${
                           isLive
-                            ? "bg-orange-500/15 text-[#ff5400] border border-orange-500/30"
-                            : "bg-[#181616] text-zinc-500 border border-[#252323]"
+                            ? "bg-[#ff5400] text-white"
+                            : "bg-white/5 text-[#ff5400]"
                         }`}
+                        style={{ fontFamily: "var(--font-cinzel)" }}
                       >
                         {isLive ? "🔴 Live" : "🎥 Recorded"}
                       </span>
                     </div>
-                    <p className="text-[11px] font-bold text-zinc-600 mb-2">
-                      <span className="text-orange-400">
-                        {mobileDuration.highlight}
-                      </span>
-                      {mobileDuration.rest && ` ${mobileDuration.rest}`}
+                    <p
+                      className="text-[11px] font-bold text-[#ffb38a] mb-3"
+                      style={{ fontFamily: "var(--font-nunito)" }}
+                    >
+                      {mobileDuration.highlight} {mobileDuration.rest}
                     </p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                    <div className="space-y-1.5">
                       {mobileTasks.map((t) => (
                         <div
                           key={t}
-                          className="flex items-center gap-1.5 text-[11.5px] font-semibold text-zinc-500"
+                          className="flex items-center gap-2 text-[12px] font-bold text-zinc-400"
+                          style={{ fontFamily: "var(--font-nunito)" }}
                         >
-                          <span
-                            className={`w-1 h-1 rounded-full flex-shrink-0 ${isLive ? "bg-orange-500/50" : "bg-[#2e2c2c]"}`}
+                          <div
+                            className={`w-1 h-1 rounded-full ${isLive ? "bg-[#ff5400]" : "bg-zinc-700"}`}
                           />
                           {t}
                         </div>
@@ -285,20 +295,22 @@ export default function HowItWorks() {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex justify-center gap-6 mt-8">
+      {/* Legend Edge-to-Edge */}
+      <div className="relative z-10 flex flex-wrap justify-center gap-x-12 gap-y-4 mt-20 pt-10 border-t border-white/5 px-6">
         {[
-          { cls: "bg-[#ff5400]", label: "Live Session" },
+          { color: "bg-[#ff5400]", label: "Direct Mentor Support" },
           {
-            cls: "bg-[#1e1c1c] border border-[#3a3838]",
-            label: "Recorded Module",
+            color: "bg-[#2a1104] border border-[#ff5400]/40",
+            label: "Structured Modules",
           },
-        ].map(({ cls, label }) => (
+          { color: "bg-white/20", label: "Daily Sangha Practice" },
+        ].map(({ color, label }) => (
           <div
             key={label}
-            className="flex items-center gap-2 text-xs font-semibold text-zinc-600"
+            className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500"
+            style={{ fontFamily: "var(--font-cinzel)" }}
           >
-            <span className={`w-2.5 h-2.5 rounded-full ${cls}`} />
+            <span className={`w-3 h-3 rounded-full ${color}`} />
             {label}
           </div>
         ))}

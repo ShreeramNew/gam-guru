@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-const NAVBAR_HEIGHT = 108; // Adjust this to match your Navbar's actual height
+const NAVBAR_HEIGHT = 60;
 
 export default function HeroSection() {
   return (
@@ -9,106 +9,104 @@ export default function HeroSection() {
       className="relative flex flex-col items-center justify-center overflow-hidden px-6"
       style={{
         height: `calc(100dvh - ${NAVBAR_HEIGHT}px)`,
-        // Sanatan Vibrant Background: Deep Burnt Orange to Dark Charcoal
+        /* REMOVED BLACK EDGES: 
+            Started with a bright copper (#6b2d0f) and ensured the darkest point 
+            is a deep mahogany (#1a0a05) rather than pure black.
+        */
         background:
-          "radial-gradient(circle at center, #4a1a05 0%, #0d0c0c 100%)",
+          "radial-gradient(circle at center, #6b2d0f 0%, #4a1a05 35%, #2b0f04 70%, #1a0a05 100%)",
         fontFamily: "var(--font-cinzel)",
       }}
     >
-      {/* Background Textures */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff5400' fill-opacity='0.12'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Decorative Top Glow */}
-      <div className="absolute top-0 w-full h-1/2 bg-gradient-to-b from-[#ff5400]/20 to-transparent pointer-events-none" />
-
-      <div className="relative z-10 max-w-6xl w-full flex flex-col items-center gap-4 text-center">
-        {/* Batch Info Badge */}
-        <div className="bg-[#ff5400] text-white text-[10px] tracking-[0.3em] font-black px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(255,84,0,0.4)] animate-pulse uppercase">
-          New Batch: 5th April • 11 AM IST
-        </div>
-
-        {/* Brand Header */}
-        <div className="space-y-1">
-          <h1
-            className="text-white leading-none font-black uppercase"
-            style={{ fontSize: "clamp(42px, 7vw, 90px)" }}
-          >
-            Shloka<span className="text-[#ff5400]">bhyasa</span>
-          </h1>
-          <h2 className="text-[#ffb38a] text-sm md:text-xl tracking-[0.4em] font-bold uppercase">
-            Learn Sanatan Shlokas Online
-          </h2>
-        </div>
-
-        {/* Core Philosophy Paragraphs */}
-        <div
-          className="max-w-3xl space-y-3"
-          style={{ fontFamily: "var(--font-nunito)" }}
-        >
-          <p className="text-zinc-100 text-sm md:text-base font-bold leading-relaxed">
-            Shlokas are a beautiful means to{" "}
-            <span className="text-[#ff5400]">
-              express & experience the divinity within
-            </span>
-            , and powerful tools to connect with the Divine.
-          </p>
-          <p className="text-zinc-400 text-[12px] md:text-sm leading-relaxed italic">
-            An effort to make Shlokas, Ashtakas, Stotras, and Stutis into an
-            effortless learning process, designed by Gurus, Yogis & Rishis of
-            our Sanatan Dharma.
-          </p>
-        </div>
-
-        {/* Feature Icons Row - Simplified for 100vh fit */}
-        <div className="flex flex-wrap justify-center gap-3 mt-2">
-          {[
-            { icon: "🎙️", text: "Hybrid Format" },
-            { icon: "🗣️", text: "Word-by-word" },
-            { icon: "🕐", text: "Learn Anytime" },
-            { icon: "🙏", text: "Sangha Learning" },
-            { icon: "✅", text: "Expert Corrections" },
-          ].map((f, i) => (
+      {/* BACKGROUND ORNAMENTATION */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="relative w-full h-full flex items-center justify-center animate-[spin_200s_linear_infinite]">
+          {/* Extremely thin, gold-tinted concentric rings */}
+          {[450, 700, 1000, 1350, 1800, 2400].map((size, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg"
-            >
-              <span className="text-xs">{f.icon}</span>
-              <span className="text-[9px] text-zinc-300 uppercase font-black tracking-widest">
-                {f.text}
-              </span>
-            </div>
+              className="border border-[#D4A017]/5 rounded-full absolute"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                borderWidth: "0.5px",
+              }}
+            />
+          ))}
+
+          {/* Perspective Rays - Very faint to keep the background 'clean' */}
+          {[0, 30, 60, 90, 120, 150].map((angle) => (
+            <div
+              key={angle}
+              className="w-[0.5px] h-[250vh] bg-gradient-to-b from-transparent via-[#D4A017]/10 to-transparent absolute"
+              style={{ transform: `rotate(${angle}deg)` }}
+            />
           ))}
         </div>
+      </div>
 
-        {/* Main CTA */}
-        <div className="mt-6 flex flex-col items-center gap-4">
-          <button className="bg-[#ff5400] hover:bg-[#ff6a20] text-white text-[13px] tracking-[0.2em] font-black px-12 py-4 rounded-xl shadow-[0_15px_40px_-10px_rgba(255,84,0,0.6)] transition-all uppercase active:scale-95 cursor-pointer">
-            Join the Batch 🙏
+      {/* CONTENT LAYER */}
+      <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center">
+        {/* Branding Icon */}
+        <div className="text-[#D4A017] text-5xl mb-6 drop-shadow-[0_0_20px_rgba(212,160,23,0.5)]">
+          🕉
+        </div>
+
+        <p className="text-[#D4A017] text-[10px] tracking-[0.8em] font-bold uppercase mb-4 opacity-90">
+          Introducing
+        </p>
+
+        {/* Brand Header: Sanatan Boot Camp style */}
+        <div className="mb-6 flex flex-col items-center">
+          <h1
+            className="text-white leading-[0.9] font-black uppercase mb-2 shadow-black/20 drop-shadow-sm"
+            style={{ fontSize: "clamp(52px, 10vw, 96px)" }}
+          >
+            Shloka <span className="text-[#D4A017]">bhyasa</span>
+          </h1>
+        </div>
+
+        <p
+          className="text-white/90 text-sm md:text-xl italic tracking-wide max-w-2xl mb-12 drop-shadow-md"
+          style={{ fontFamily: "serif" }}
+        >
+          Learn Sanatan Shlokas Online
+        </p>
+
+        {/* ACTION BUTTONS */}
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <button className="bg-[#E8720C] hover:bg-[#ff8c2b] text-white text-[14px] tracking-[0.2em] font-bold px-14 py-4 rounded-full transition-all uppercase active:scale-95 shadow-[0_0_30px_rgba(232,114,12,0.6)] cursor-pointer flex items-center gap-3">
+            Enroll Now
           </button>
 
-          {/* Schedule Teaser */}
-          <div className="flex items-center gap-6 text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">
-            <span>8-Day Journey</span>
-            <div className="w-1 h-1 bg-[#ff5400] rounded-full" />
-            <span>Live + Recorded</span>
-            <div className="w-1 h-1 bg-[#ff5400] rounded-full" />
-            <span>Daily Practice</span>
-          </div>
+          <button className="border border-[#D4A017]/40 hover:bg-[#D4A017]/10 text-[#D4A017] text-[12px] tracking-[0.2em] font-bold px-12 py-4 rounded-sm transition-all uppercase cursor-pointer backdrop-blur-sm">
+            Login
+          </button>
         </div>
+
+        {/* Signature Accent Line */}
+        <div className="mt-14 w-32 h-[1.5px] bg-gradient-to-r from-transparent via-[#D4A017]/70 to-transparent" />
       </div>
 
-      {/* Subtle Scroll Hint */}
-      <div className="absolute bottom-4 flex flex-col items-center gap-1 opacity-30">
-        <span className="text-[8px] uppercase tracking-widest text-white">
-          Explore Schedule
+      {/* SCROLL INDICATOR */}
+      <div className="absolute bottom-8 flex flex-col items-center gap-2 animate-bounce opacity-50">
+        <span className="text-[#D4A017] text-[9px] uppercase tracking-[0.4em] font-bold">
+          Scroll
         </span>
-        <div className="w-px h-8 bg-gradient-to-b from-white to-transparent" />
+        <div className="w-[1px] h-12 bg-gradient-to-b from-[#D4A017] to-transparent" />
       </div>
+
+      {/* Global CSS for the Rotation */}
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </section>
   );
 }
