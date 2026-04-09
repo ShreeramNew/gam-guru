@@ -6,6 +6,7 @@ import Features from "./components/Features";
 import Footer from "./components/Footer";
 import ShlokabhyasaIntro from "./components/IntroSection";
 import MeetTheInstructor from "./components/MeetInstructor";
+import ModuleShowcase from "./components/Modules";
 
 export default function Page() {
   return (
@@ -15,6 +16,7 @@ export default function Page() {
       <ShlokabhyasaIntro />
       <HowItWorks />
       <Features />
+      <ModuleShowcase />
       <MeetTheInstructor />
       <Footer />
     </div>
