@@ -8,38 +8,50 @@ const PAGE_PASSWORD = "gurupada";
 const POWERED_BY = "Gam Guru - Sanatan After School";
 const TITLE = "Guru Ashtakam";
 
+// Helper to generate the static AWS thumbnail URL
+const getThumbnailUrl = (dayNumber) => 
+  `https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/thumbnails/GuruAshtakam/day${dayNumber}.jpg`;
+
 const VIDEOS = [
   {
     title: "Guru Ashtakam - Day 1",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+-+1st+Stanza+_+Day+-+1+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(1)
   },
   {
     title: "Guru Ashtakam - Day 2",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+2nd+Stanza+_+Day+2+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(2)
   },
   {
     title: "Guru Ashtakam - Day 3",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+3rd+Stanza+_+Day+3+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(3)
   },
   {
     title: "Guru Ashtakam - Day 4",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+4th+Stanza+_+Day+-+4+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(4)
   },
   {
     title: "Guru Ashtakam - Day 5",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+5th+Stanza+_+Day+5+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(5)
   },
   {
     title: "Guru Ashtakam - Day 6",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+6th+Stanza+_+Day+6+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(6)
   },
   {
     title: "Guru Ashtakam - Day 7",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+7th+Stanza+_+Day+7+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(7)
   },
   {
     title: "Guru Ashtakam - Day 8",
     url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/Guru+Ashtakam+8th+Stanza+_+Day+8+_+Sanatan+Slokas+_+A+Self+Learning+Module.mp4",
+    thumbnail: getThumbnailUrl(8)
   },
 ];
 
@@ -50,36 +62,10 @@ export default function GuruAshtakamPage() {
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [thumbnails, setThumbnails] = useState({});
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  // Thumbnail Generator (Requires the S3 CORS fix above)
-  useEffect(() => {
-    if (isAuthorized && isClient) {
-      VIDEOS.forEach((vid) => {
-        const video = document.createElement("video");
-        video.src = vid.url;
-        video.crossOrigin = "anonymous"; // This is the key line
-        video.currentTime = 2; // Grab frame at 2 seconds (usually clearer)
-        video.muted = true;
-
-        video.onloadeddata = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          setThumbnails((prev) => ({
-            ...prev,
-            [vid.url]: canvas.toDataURL("image/jpeg"),
-          }));
-        };
-      });
-    }
-  }, [isAuthorized, isClient]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -117,7 +103,7 @@ export default function GuruAshtakamPage() {
             {error && <p className="text-red-500 text-xs">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-[#ff5400] text-white font-bold py-3 rounded-lg active:scale-95 transition-transform"
+              className="w-full bg-[#ff5400] text-white font-bold py-3 rounded-lg active:scale-95 transition-transform cursor-pointer"
             >
               Access Videos
             </button>
@@ -152,16 +138,13 @@ export default function GuruAshtakamPage() {
                 className="absolute inset-0 z-30 bg-black flex flex-col items-center justify-center cursor-pointer"
                 onClick={() => setIsReady(true)}
               >
-                {thumbnails[activeVideo.url] ? (
-                  <img
-                    src={thumbnails[activeVideo.url]}
-                    className="absolute inset-0 w-full h-full object-cover opacity-60"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-black animate-pulse" />
-                )}
+                <img
+                  src={activeVideo.thumbnail}
+                  alt={activeVideo.title}
+                  className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity group-hover:opacity-40"
+                />
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(255,84,0,0.4)]">
                     <Play fill="white" className="text-white ml-1" />
                   </div>
                   <p className="text-xs font-bold uppercase tracking-widest text-white">
@@ -192,7 +175,8 @@ export default function GuruAshtakamPage() {
             </div>
             <button
               onClick={() => setIsReady(false)}
-              className="p-2 text-zinc-600 hover:text-[#ff5400]"
+              className="p-2 text-zinc-600 hover:text-[#ff5400] cursor-pointer transition-colors"
+              title="Reset Player"
             >
               <RotateCcw size={18} />
             </button>
@@ -203,7 +187,7 @@ export default function GuruAshtakamPage() {
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest px-1">
             Course Modules
           </h3>
-          <div className="grid grid-cols-1 gap-3 max-h-[70vh] overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 gap-3 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
             {VIDEOS.map((video) => (
               <button
                 key={video.url}
@@ -211,26 +195,33 @@ export default function GuruAshtakamPage() {
                   setActiveVideo(video);
                   setIsReady(true);
                 }}
-                className={`flex items-center p-3 rounded-xl border transition-all ${activeVideo.url === video.url ? "bg-orange-500/10 border-orange-500/50 text-[#ff5400]" : "bg-[#141313] border-zinc-800 text-zinc-400"}`}
+                className={`flex items-center p-3 rounded-xl border transition-all cursor-pointer ${
+                  activeVideo.url === video.url 
+                  ? "bg-orange-500/10 border-orange-500/50 text-[#ff5400]" 
+                  : "bg-[#141313] border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:bg-[#1a1919]"
+                }`}
               >
                 <div className="mr-4 h-12 w-20 bg-zinc-900 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative border border-zinc-800">
-                  {thumbnails[video.url] ? (
-                    <img
-                      src={thumbnails[video.url]}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <Video size={16} />
+                  <img
+                    src={video.thumbnail}
+                    alt=""
+                    className="object-cover w-full h-full"
+                  />
+                  {activeVideo.url === video.url && (
+                    <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center">
+                      <Play size={12} fill="currentColor" />
+                    </div>
                   )}
                 </div>
-                <p
-                  className={`text-sm font-semibold truncate ${activeVideo.url === video.url ? "text-white" : ""}`}
-                >
-                  {video.title}
-                </p>
+                <div className="flex-1 text-left min-w-0">
+                  <p className={`text-sm font-semibold truncate ${activeVideo.url === video.url ? "text-white" : ""}`}>
+                    {video.title}
+                  </p>
+                  <p className="text-[10px] text-zinc-600 uppercase">Module</p>
+                </div>
                 <ChevronRight
                   size={16}
-                  className={`ml-auto ${activeVideo.url === video.url ? "opacity-100" : "opacity-0"}`}
+                  className={`ml-auto transition-transform ${activeVideo.url === video.url ? "opacity-100 translate-x-1" : "opacity-0"}`}
                 />
               </button>
             ))}
