@@ -1,7 +1,28 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+
+const useNextSunday = () => {
+  return useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const currentHour = now.getHours();
+    // Logic: If Sunday before 7PM, show today. If Sunday after 7PM, show next week.
+    let daysUntilSunday =
+      dayOfWeek === 0 && currentHour >= 19
+        ? 7
+        : dayOfWeek === 0
+          ? 0
+          : 7 - dayOfWeek;
+    const nextSunday = new Date(now);
+    nextSunday.setDate(now.getDate() + daysUntilSunday);
+    return nextSunday.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+    });
+  }, []);
+};
 
 const MODULES = [
   {
@@ -10,6 +31,8 @@ const MODULES = [
     description: "Honoring the spiritual guide through the sacred Guru Paduka.",
     price: { original: 1100, current: 777 },
     status: "active",
+    batchLabel: true,
+    blurPrice: false,
   },
   {
     title: "NAGA STUTI",
@@ -17,144 +40,292 @@ const MODULES = [
     description: "Adoration to the serpent deities for strength and healing.",
     price: { original: 500, current: 333 },
     status: "coming_soon",
-    // Naga Stuti price is visible as requested
+    batchLabel: false,
+    blurPrice: false,
   },
   {
     title: "KALA BHAIRAVA ASHTAKAM",
     image: "/KalaBhairava.png",
     description: "Connect with the divine guardian of time and protection.",
-    price: { original: 1200, current: 888 }, // Placeholder for blur
+    price: { original: 1200, current: 888 },
     status: "coming_soon",
+    batchLabel: false,
+    blurPrice: true,
   },
   {
     title: "LAKSHMI ASHTAKAM",
     image: "/lakshmi.png",
     description: "Invoking the grace of the Goddess of wealth and prosperity.",
-    price: { original: 1500, current: 999 }, // Placeholder for blur
+    price: { original: 1500, current: 999 },
     status: "coming_soon",
+    batchLabel: false,
+    blurPrice: true,
   },
-  
 ];
 
 export default function ModuleShowcase() {
-  const orange = "#E8720C";
-  const brownDeep = "#5C3A1E";
-  const goldAccent = "#D4A017";
-  const creamBg = "#FDF6E3";
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const nextSundayStr = useNextSunday();
+
+  const handleEnrollment = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const formData = new FormData(e.target);
+    const userDetails = Object.fromEntries(formData);
+
+    if (selectedModule.status === "active") {
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: selectedModule.price.current * 100,
+        currency: "INR",
+        name: "Sanatan After School",
+        description: selectedModule.title,
+        handler: async function (response) {
+          await finalizeRegistration({
+            ...userDetails,
+            ...response,
+            status: "active",
+            moduleTitle: selectedModule.title,
+          });
+        },
+        prefill: {
+          name: userDetails.name,
+          email: userDetails.email,
+          contact: userDetails.phone,
+        },
+        theme: { color: "#E8720C" },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } else {
+      await finalizeRegistration({
+        ...userDetails,
+        status: "coming_soon",
+        moduleTitle: selectedModule.title,
+      });
+    }
+  };
+
+  const finalizeRegistration = async (data) => {
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        alert(
+          data.status === "active"
+            ? "Enrollment Successful!"
+            : "Notification set!",
+        );
+        setSelectedModule(null);
+      }
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <section
-      className="w-full lg:h-auto lg:min-h-[700px] flex flex-col justify-center items-center px-6 md:px-20 py-16 overflow-hidden"
-      style={{ backgroundColor: creamBg }}
-    >
-      <div className="max-w-7xl w-full flex flex-col h-full py-12 md:py-16">
-        {/* Header Section */}
-        <div className="text-center mb-12 md:mb-16 flex-shrink-0">
-          <p
-            className="text-[11px] font-black uppercase tracking-[0.5em] mb-4 opacity-70"
-            style={{ color: orange }}
-          >
-            Explore Wisdom
+    <section className="w-full py-20 bg-[#FDF6E3]">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <p className="text-[11px] font-black uppercase tracking-[0.5em] text-[#E8720C] mb-4">
+            Curriculum
           </p>
           <h2
-            className="text-4xl md:text-5xl font-black uppercase tracking-tight"
-            style={{ color: brownDeep, fontFamily: "var(--font-cinzel)" }}
+            className="text-4xl md:text-5xl font-black uppercase text-[#5C3A1E]"
+            style={{ fontFamily: "var(--font-cinzel)" }}
           >
-            Sacred <span style={{ color: orange }}>Modules</span>
+            Sacred <span className="text-[#E8720C]">Modules</span>
           </h2>
-          <div
-            className="w-16 h-[2.5px] mx-auto mt-6"
-            style={{ backgroundColor: orange }}
-          />
+          <div className="w-16 h-[2.5px] bg-[#E8720C] mx-auto mt-6" />
         </div>
 
-        {/* Updated Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 flex-grow items-start pb-10">
-          {MODULES.map((module, idx) => {
-            const isComingSoon = module.status === "coming_soon";
-            const isNagaOrGuru =
-              module.title === "NAGA STUTI" || module.title === "GURU ASHTAKAM";
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {MODULES.map((module, idx) => (
+            <motion.div
+              key={idx}
+              className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <Image
+                  src={module.image}
+                  alt={module.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                {module.status === "coming_soon" && (
+                  <div className="absolute top-6 -right-12 bg-[#E8720C] text-white font-black text-[9px] uppercase tracking-[0.3em] py-2 px-16 rotate-[35deg] shadow-lg z-10">
+                    Coming Soon
+                  </div>
+                )}
+              </div>
 
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="group flex flex-col bg-white rounded-[2rem] transition-all duration-500 hover:shadow-2xl hover:shadow-[#5C3A1E]/10 lg:hover:-translate-y-2 relative"
-                style={{ border: "1px solid rgba(92, 58, 30, 0.05)" }}
-              >
-                {/* Image Area */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[2rem]">
-                  <Image
-                    src={module.image}
-                    alt={module.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    className={`object-cover transition-transform duration-1000 group-hover:scale-110 ${isComingSoon ? "grayscale-[20%]" : ""}`}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent" />
-
-                  {isComingSoon && (
-                    <div className="absolute top-6 -right-12 bg-[#E8720C] text-white font-black text-[9px] uppercase tracking-[0.3em] py-2 px-16 rotate-[35deg] shadow-lg z-10 select-none">
-                      Coming Soon
+              {/* Card Content Wrapper */}
+              <div className="p-7 pt-9 flex flex-col items-center text-center relative flex-grow">
+                {/* Fixed Batch Label Position */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center px-4">
+                  {module.batchLabel ? (
+                    <div className="bg-white px-4 py-2 rounded-full border border-[#E8720C]/30 shadow-md whitespace-nowrap z-20">
+                      <p className="text-[9px] font-black uppercase text-[#E8720C]">
+                        Next Batch: {nextSundayStr} • 7:00 PM
+                      </p>
                     </div>
+                  ) : (
+                    <div className="h-4" /> // Placeholder to maintain alignment
                   )}
                 </div>
 
-                {/* Text Area */}
-                <div className="p-6 md:p-7 flex flex-col items-center text-center flex-grow">
-                  <div className="space-y-3 min-h-[90px] flex flex-col justify-center">
-                    <h3
-                      className="text-[16px] md:text-[17px] font-black uppercase tracking-widest leading-tight transition-colors group-hover:text-[#E8720C]"
-                      style={{
-                        fontFamily: "var(--font-cinzel)",
-                        color: brownDeep,
-                      }}
-                    >
-                      {module.title}
-                    </h3>
-                    <p
-                      className="text-[11px] md:text-[12px] font-bold leading-relaxed opacity-60"
-                      style={{ color: brownDeep }}
-                    >
-                      {module.description}
-                    </p>
-                  </div>
-
-                  {/* Pricing Section - Conditional Blur */}
-                  <div
-                    className={`mt-5 min-h-[40px] flex items-center justify-center gap-3 transition-all duration-500 ${!isNagaOrGuru ? "blur-[5px] opacity-30 select-none scale-95" : "opacity-100"}`}
+                <div className="min-h-[100px] flex flex-col justify-center space-y-2">
+                  <h3
+                    className="text-[16px] font-black uppercase tracking-widest text-[#5C3A1E]"
+                    style={{ fontFamily: "var(--font-cinzel)" }}
                   >
-                    <span className="text-sm font-bold text-black/40 line-through">
-                      ₹{module.price.original}
-                    </span>
-                    <span
-                      className="text-2xl font-black"
-                      style={{ color: brownDeep }}
-                    >
-                      ₹{module.price.current}
-                    </span>
-                  </div>
+                    {module.title}
+                  </h3>
+                  <p className="text-[12px] font-bold opacity-60 text-[#5C3A1E]">
+                    {module.description}
+                  </p>
+                </div>
 
-                  {/* Button - Always Enabled */}
+                <div
+                  className={`mt-5 flex gap-3 items-center ${module.blurPrice ? "blur-[7px] opacity-40 select-none" : "opacity-100"}`}
+                >
+                  <span
+                    className="text-sm line-through opacity-40 font-bold"
+                    style={{ color: "#000000" }}
+                  >
+                    ₹{module.price.original}
+                  </span>
+                  <span className="text-2xl font-black text-[#5C3A1E]">
+                    ₹{module.price.current}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => setSelectedModule(module)}
+                  className="w-full mt-6 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg hover:brightness-110 transition-all active:scale-95"
+                >
+                  {module.status === "active" ? "Enroll Now" : "Notify Me"}
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {selectedModule && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-white rounded-[2rem] w-full max-w-[480px] relative shadow-xl overflow-hidden p-8"
+            >
+              <div className="text-center mb-6">
+                <h3
+                  className="text-2xl font-black text-[#5C3A1E] uppercase"
+                  style={{ fontFamily: "var(--font-cinzel)" }}
+                >
+                  Register <span className="text-[#E8720C]">Now</span>
+                </h3>
+                <p className="text-[11px] font-medium opacity-60 mt-1 italic text-[#5C3A1E]">
+                  Fill in the details below to secure a place
+                </p>
+                <div className="w-10 h-[1.5px] bg-[#E8720C] mx-auto mt-4" />
+              </div>
+
+              <form onSubmit={handleEnrollment} className="space-y-5">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
+                      Personal Details
+                    </span>
+                    <div className="flex-1 h-[1px] bg-[#E8720C]/10" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      required
+                      name="name"
+                      placeholder="Full Name"
+                      className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                    />
+                    <input
+                      required
+                      name="city"
+                      placeholder="City"
+                      className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                    />
+                  </div>
+                  <input
+                    required
+                    name="email"
+                    type="email"
+                    placeholder="Email Address"
+                    className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
+                      Contact Info
+                    </span>
+                    <div className="flex-1 h-[1px] bg-[#E8720C]/10" />
+                  </div>
+                  <div className="flex gap-3">
+                    <select
+                      name="countryCode"
+                      className="w-[90px] p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none"
+                    >
+                      <option value="+91">IN +91</option>
+                      <option value="+1">US +1</option>
+                      <option value="+44">UK +44</option>
+                    </select>
+                    <input
+                      required
+                      type="tel"
+                      pattern="[0-9]{10}"
+                      name="phone"
+                      placeholder="81234 56789"
+                      className="flex-1 p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
                   <button
-                    className="w-full mt-6 py-4 rounded-full text-[11px] font-black uppercase tracking-[0.25em] transition-all duration-300 cursor-pointer shadow-lg active:scale-95 bg-[#E8720C] text-white hover:brightness-110"
-                    style={{
-                      boxShadow: `0 8px 20px ${orange}30`,
-                    }}
+                    type="button"
+                    onClick={() => setSelectedModule(null)}
+                    className="flex-1 py-3.5 rounded-lg border border-[#E8720C]/20 text-[11px] font-black uppercase tracking-widest text-[#5C3A1E] hover:bg-[#FDF6E3] transition-all cursor-pointer"
                   >
-                    Enroll Now
+                    Back
+                  </button>
+                  <button
+                    disabled={isSubmitting}
+                    className="flex-[2] py-3.5 rounded-lg bg-[#E8720C] text-white text-[11px] font-black uppercase tracking-widest shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                  >
+                    {isSubmitting
+                      ? "Processing..."
+                      : selectedModule.status === "active"
+                        ? `Pay ₹${selectedModule.price.current}`
+                        : "Continue →"}
                   </button>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Footer Signature */}
-        <div className="hidden md:block flex-shrink-0 w-32 h-[1.5px] mx-auto bg-gradient-to-r from-transparent via-[#D4A017]/40 to-transparent opacity-60 mt-12" />
-      </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
     </section>
   );
 }
