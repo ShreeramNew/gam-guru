@@ -22,19 +22,16 @@ export async function POST(req) {
 
     // 1. VERIFICATION CHECK
     if (status === "active") {
-      // Check for the Payment ID (this always exists on success)
       if (!razorpay_payment_id) {
         return NextResponse.json(
           { error: "Missing payment details" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
-      // ONLY verify signature if an Order ID was actually used
       if (razorpay_order_id && razorpay_signature) {
         const secret = process.env.RAZORPAY_KEY_SECRET;
         const hmac = crypto.createHmac("sha256", secret);
-
         const generated_signature = hmac
           .update(razorpay_order_id + "|" + razorpay_payment_id)
           .digest("hex");
@@ -43,20 +40,17 @@ export async function POST(req) {
           console.error("Signature Mismatch!");
           return NextResponse.json(
             { error: "Invalid signature" },
-            { status: 400 },
+            { status: 400 }
           );
         }
       } else {
-        // For simple integrations without an Order ID, we proceed once we have the Payment ID
-        console.log(
-          "Simple integration detected, skipping signature verification.",
-        );
+        console.log("Simple integration detected, skipping signature verification.");
       }
     }
 
     // 2. AIRTABLE SYNC
     const base = new Airtable({ apiKey: process.env.AIRTABLE_PAT }).base(
-      process.env.AIRTABLE_BASE_ID,
+      process.env.AIRTABLE_BASE_ID
     );
     const tableName =
       status === "active"
@@ -78,7 +72,32 @@ export async function POST(req) {
       },
     ]);
 
-    // 3. EMAIL AUTOMATION
+    // 3. MONGODB BACKEND SYNC (Only for Paid Enrollments)
+    if (status === "active") {
+      try {
+        // We use the new modularized endpoint
+        const backendRes = await fetch("http://localhost:5000/api/users/sync-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            name,
+            city,
+            phone: `${countryCode}${phone}`,
+            moduleTitle,
+          }),
+        });
+        
+        if (!backendRes.ok) {
+          console.error("MongoDB Sync failed but Airtable was successful.");
+        }
+      } catch (backendErr) {
+        console.error("Could not reach Node.js Backend:", backendErr.message);
+        // We don't return an error here because Airtable/Email already worked
+      }
+    }
+
+    // 4. EMAIL AUTOMATION
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
@@ -92,7 +111,7 @@ export async function POST(req) {
         status === "active"
           ? `Success: ${moduleTitle}`
           : `Inquiry: ${moduleTitle}`,
-      text: `Namaskaram ${name}! We have recieved your application for ${moduleTitle}. We will connect soon.`,
+      text: `Namaskaram ${name}! We have received your application for ${moduleTitle}. We will connect soon.`,
     });
 
     return NextResponse.json({ success: true });
