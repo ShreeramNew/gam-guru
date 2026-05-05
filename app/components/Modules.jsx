@@ -8,7 +8,6 @@ const useNextSunday = () => {
     const now = new Date();
     const dayOfWeek = now.getDay();
     const currentHour = now.getHours();
-    // Logic: If Sunday before 7PM, show today. If Sunday after 7PM, show next week.
     let daysUntilSunday =
       dayOfWeek === 0 && currentHour >= 19
         ? 7
@@ -66,28 +65,81 @@ const MODULES = [
 export default function ModuleShowcase() {
   const [selectedModule, setSelectedModule] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successType, setSuccessType] = useState("enrollment");
+
   const nextSundayStr = useNextSunday();
 
-  const handleEnrollment = async (e) => {
+  // Helper to send data to your API
+  const finalizeRegistration = async (payload) => {
+    console.log("I am payload:", payload);
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSuccessType(
+          payload.status === "active" ? "enrollment" : "notification",
+        );
+        setSelectedModule(null);
+        setShowSuccess(true);
+      } else {
+        const errorData = await res.json();
+        alert(`Error: ${errorData.error || "Submission failed"}`);
+      }
+    } catch (err) {
+      alert("Network error. Please check your connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const formData = new FormData(e.target);
+
+    // 1. Capture Form Data immediately
+    const formElement = e.currentTarget;
+    const formData = new FormData(formElement);
     const userDetails = Object.fromEntries(formData);
 
+    const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    console.log("Razorpay Key:", razorpayKey);
+
     if (selectedModule.status === "active") {
+      // Safety check for the 403/undefined error
+      if (!razorpayKey) {
+        setIsSubmitting(false);
+        alert("Razorpay Key is missing. Please check your .env setup.");
+        return;
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKey, // Ensure this is not undefined
         amount: selectedModule.price.current * 100,
         currency: "INR",
         name: "Sanatan After School",
         description: selectedModule.title,
         handler: async function (response) {
-          await finalizeRegistration({
-            ...userDetails,
-            ...response,
+          // COMBINE DATA HERE
+          const finalPayload = {
+            name: userDetails.name,
+            email: userDetails.email,
+            city: userDetails.city,
+            countryCode: userDetails.countryCode,
+            phone: userDetails.phone,
             status: "active",
             moduleTitle: selectedModule.title,
-          });
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id || "",
+            razorpay_signature: response.razorpay_signature,
+          };
+
+          // Send to backend
+          await finalizeRegistration(finalPayload);
         },
         prefill: {
           name: userDetails.name,
@@ -95,36 +147,27 @@ export default function ModuleShowcase() {
           contact: userDetails.phone,
         },
         theme: { color: "#E8720C" },
+        modal: {
+          ondismiss: function () {
+            setIsSubmitting(false);
+          },
+        },
       };
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+
+      try {
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        console.error("Razorpay Open Error:", err);
+        setIsSubmitting(false);
+      }
     } else {
+      // Coming Soon / Notify Me Flow
       await finalizeRegistration({
         ...userDetails,
         status: "coming_soon",
         moduleTitle: selectedModule.title,
       });
-    }
-  };
-
-  const finalizeRegistration = async (data) => {
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      if (res.ok) {
-        alert(
-          data.status === "active"
-            ? "Enrollment Successful!"
-            : "Notification set!",
-        );
-        setSelectedModule(null);
-      }
-    } catch (err) {
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -163,10 +206,7 @@ export default function ModuleShowcase() {
                   </div>
                 )}
               </div>
-
-              {/* Card Content Wrapper */}
               <div className="p-7 pt-9 flex flex-col items-center text-center relative flex-grow">
-                {/* Fixed Batch Label Position */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center px-4">
                   {module.batchLabel ? (
                     <div className="bg-white px-4 py-2 rounded-full border border-[#E8720C]/30 shadow-md whitespace-nowrap z-20">
@@ -175,10 +215,9 @@ export default function ModuleShowcase() {
                       </p>
                     </div>
                   ) : (
-                    <div className="h-4" /> // Placeholder to maintain alignment
+                    <div className="h-4" />
                   )}
                 </div>
-
                 <div className="min-h-[100px] flex flex-col justify-center space-y-2">
                   <h3
                     className="text-[16px] font-black uppercase tracking-widest text-[#5C3A1E]"
@@ -190,7 +229,6 @@ export default function ModuleShowcase() {
                     {module.description}
                   </p>
                 </div>
-
                 <div
                   className={`mt-5 flex gap-3 items-center ${module.blurPrice ? "blur-[7px] opacity-40 select-none" : "opacity-100"}`}
                 >
@@ -204,7 +242,6 @@ export default function ModuleShowcase() {
                     ₹{module.price.current}
                   </span>
                 </div>
-
                 <button
                   onClick={() => setSelectedModule(module)}
                   className="w-full mt-6 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg hover:brightness-110 transition-all active:scale-95"
@@ -242,8 +279,7 @@ export default function ModuleShowcase() {
                 </p>
                 <div className="w-10 h-[1.5px] bg-[#E8720C] mx-auto mt-4" />
               </div>
-
-              <form onSubmit={handleEnrollment} className="space-y-5">
+              <form onSubmit={handleFormSubmit} className="space-y-5">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
@@ -256,13 +292,13 @@ export default function ModuleShowcase() {
                       required
                       name="name"
                       placeholder="Full Name"
-                      className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                      className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none"
                     />
                     <input
                       required
                       name="city"
                       placeholder="City"
-                      className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                      className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none"
                     />
                   </div>
                   <input
@@ -270,10 +306,9 @@ export default function ModuleShowcase() {
                     name="email"
                     type="email"
                     placeholder="Email Address"
-                    className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                    className="w-full p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none"
                   />
                 </div>
-
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
@@ -284,11 +319,10 @@ export default function ModuleShowcase() {
                   <div className="flex gap-3">
                     <select
                       name="countryCode"
-                      className="w-[90px] p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none"
+                      className="w-[90px] p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] outline-none"
                     >
                       <option value="+91">IN +91</option>
                       <option value="+1">US +1</option>
-                      <option value="+44">UK +44</option>
                     </select>
                     <input
                       required
@@ -296,22 +330,21 @@ export default function ModuleShowcase() {
                       pattern="[0-9]{10}"
                       name="phone"
                       placeholder="81234 56789"
-                      className="flex-1 p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none transition-all"
+                      className="flex-1 p-3.5 rounded-lg bg-[#FDF6E3]/50 border border-[#E8720C]/20 text-[13px] font-bold text-[#5C3A1E] focus:border-[#E8720C] outline-none"
                     />
                   </div>
                 </div>
-
                 <div className="flex gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setSelectedModule(null)}
-                    className="flex-1 py-3.5 rounded-lg border border-[#E8720C]/20 text-[11px] font-black uppercase tracking-widest text-[#5C3A1E] hover:bg-[#FDF6E3] transition-all cursor-pointer"
+                    className="flex-1 py-3.5 rounded-lg border border-[#E8720C]/20 text-[11px] font-black uppercase tracking-widest text-[#5C3A1E] hover:bg-[#FDF6E3] transition-all"
                   >
                     Back
                   </button>
                   <button
                     disabled={isSubmitting}
-                    className="flex-[2] py-3.5 rounded-lg bg-[#E8720C] text-white text-[11px] font-black uppercase tracking-widest shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                    className="flex-[2] py-3.5 rounded-lg bg-[#E8720C] text-white text-[11px] font-black uppercase cursor-pointer tracking-widest shadow-lg active:scale-95 transition-all"
                   >
                     {isSubmitting
                       ? "Processing..."
@@ -325,6 +358,59 @@ export default function ModuleShowcase() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-[2.5rem] w-full max-w-[400px] p-10 text-center shadow-2xl relative overflow-hidden"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg
+                  className="w-10 h-10 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="3"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h3
+                className="text-2xl font-black text-[#5C3A1E] uppercase mb-3"
+                style={{ fontFamily: "var(--font-cinzel)" }}
+              >
+                {successType === "enrollment"
+                  ? "Enrollment Successful"
+                  : "Interest Noted"}
+              </h3>
+              <p className="text-sm font-bold opacity-60 text-[#5C3A1E] leading-relaxed">
+                {successType === "enrollment"
+                  ? "Namaskaram! Your place is secured. We'll notify you soon regarding batch details and joining instructions."
+                  : "Namaskaram! We've added you to our waiting list. We'll notify you as soon as this module launches."}
+              </p>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="mt-8 w-full py-4 rounded-full bg-[#5C3A1E] text-white font-black uppercase text-[11px] cursor-pointer tracking-widest hover:brightness-125 transition-all active:scale-95 shadow-lg"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <script src="https://checkout.razorpay.com/v1/checkout.js" async />
     </section>
   );
