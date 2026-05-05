@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono, Yatra_One, Nunito, Cinzel } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
+import AuthProvider from "./components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,7 +49,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${yatra.variable} ${nunito.variable} ${cinzel.variable} antialiased bg-[#0a0909] text-[#e5e7eb]`}
       >
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
