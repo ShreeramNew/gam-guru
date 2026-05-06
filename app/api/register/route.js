@@ -6,13 +6,16 @@ import crypto from "crypto";
 export async function POST(req) {
   try {
     const data = await req.json();
-    console.log("Inside API, Data:", data);
     const {
-      name,
+      firstName,
+      lastName,
       email,
       city,
       countryCode,
       phone,
+      age,
+      gender,
+      occupation,
       moduleTitle,
       status,
       razorpay_payment_id,
@@ -20,37 +23,34 @@ export async function POST(req) {
       razorpay_signature,
     } = data;
 
-    // 1. VERIFICATION CHECK
+    const fullName = firstName ? `${firstName} ${lastName}` : data.name;
+
+    // 1. VERIFICATION CHECK (Remains same)
     if (status === "active") {
       if (!razorpay_payment_id) {
         return NextResponse.json(
           { error: "Missing payment details" },
-          { status: 400 }
+          { status: 400 },
         );
       }
-
       if (razorpay_order_id && razorpay_signature) {
         const secret = process.env.RAZORPAY_KEY_SECRET;
-        const hmac = crypto.createHmac("sha256", secret);
-        const generated_signature = hmac
+        const generated_signature = crypto
+          .createHmac("sha256", secret)
           .update(razorpay_order_id + "|" + razorpay_payment_id)
           .digest("hex");
-
         if (generated_signature !== razorpay_signature) {
-          console.error("Signature Mismatch!");
           return NextResponse.json(
             { error: "Invalid signature" },
-            { status: 400 }
+            { status: 400 },
           );
         }
-      } else {
-        console.log("Simple integration detected, skipping signature verification.");
       }
     }
 
-    // 2. AIRTABLE SYNC
+    // 2. AIRTABLE SYNC (Updated Fields)
     const base = new Airtable({ apiKey: process.env.AIRTABLE_PAT }).base(
-      process.env.AIRTABLE_BASE_ID
+      process.env.AIRTABLE_BASE_ID,
     );
     const tableName =
       status === "active"
@@ -60,8 +60,12 @@ export async function POST(req) {
     await base(tableName).create([
       {
         fields: {
-          Name: name,
+          "First Name": firstName || fullName,
+          "Last Name": lastName || "",
           Email: email,
+          Age: age ? parseInt(age) : 0,
+          Gender: gender || "N/A",
+          Occupation: occupation || "N/A",
           City: city,
           CountryCode: countryCode,
           Phone: phone,
@@ -72,32 +76,31 @@ export async function POST(req) {
       },
     ]);
 
-    // 3. MONGODB BACKEND SYNC (Only for Paid Enrollments)
+    // 3. MONGODB BACKEND SYNC (Only for Paid)
     if (status === "active") {
       try {
-        // We use the new modularized endpoint
-        const backendRes = await fetch("http://localhost:5000/api/users/sync-payment", {
+        await fetch("http://localhost:5000/api/users/sync-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email,
-            name,
+            firstName,
+            lastName,
+            name: `${firstName} ${lastName}`,
+            age,
+            gender,
+            occupation,
             city,
             phone: `${countryCode}${phone}`,
             moduleTitle,
           }),
         });
-        
-        if (!backendRes.ok) {
-          console.error("MongoDB Sync failed but Airtable was successful.");
-        }
       } catch (backendErr) {
-        console.error("Could not reach Node.js Backend:", backendErr.message);
-        // We don't return an error here because Airtable/Email already worked
+        console.error("Node.js Backend Sync failed:", backendErr.message);
       }
     }
 
-    // 4. EMAIL AUTOMATION
+    // 4. EMAIL (Nodemailer)
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
@@ -106,17 +109,15 @@ export async function POST(req) {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
-      bcc: process.env.TO_EMAIL,
       subject:
         status === "active"
           ? `Success: ${moduleTitle}`
           : `Inquiry: ${moduleTitle}`,
-      text: `Namaskaram ${name}! We have received your application for ${moduleTitle}. We will connect soon.`,
+      text: `Namaskaram ${fullName}! Application for ${moduleTitle} received. We will connect soon.`,
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("FULL ERROR LOG:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

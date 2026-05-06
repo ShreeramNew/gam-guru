@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const useNextSunday = () => {
   return useMemo(() => {
@@ -67,6 +68,7 @@ export default function ModuleShowcase() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successType, setSuccessType] = useState("enrollment");
+  const router=useRouter();
 
   const nextSundayStr = useNextSunday();
 
@@ -94,6 +96,17 @@ export default function ModuleShowcase() {
       alert("Network error. Please check your connection.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAction = (module) => {
+    if (module.status === "active") {
+      // Redirect to the new registration page
+      const slug = module.title.toLowerCase().replace(/ /g, "-");
+      router.push(`/register/${slug}`);
+    } else {
+      // Keep Notify Me popup logic
+      setSelectedModule(module);
     }
   };
 
@@ -243,8 +256,8 @@ export default function ModuleShowcase() {
                   </span>
                 </div>
                 <button
-                  onClick={() => setSelectedModule(module)}
-                  className="w-full mt-6 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg hover:brightness-110 transition-all active:scale-95"
+                  onClick={() => handleAction(module)}
+                  className="w-full mt-6 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg active:scale-95 cursor-pointer"
                 >
                   {module.status === "active" ? "Enroll Now" : "Notify Me"}
                 </button>
