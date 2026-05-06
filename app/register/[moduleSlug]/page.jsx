@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { Crimson_Pro } from "next/font/google";
+
 import {
   ChevronLeft,
   User,
@@ -12,6 +14,11 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { getCountryData } from "../../lib/registration-data";
+
+const crimson = Crimson_Pro({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
 
 const SearchableSelect = ({
   options = [],
@@ -119,6 +126,8 @@ export default function RegistrationPage() {
   });
 
   const [selectedTz, setSelectedTz] = useState("");
+  const [selectedStartSlot, setSelectedStartSlot] = useState("");
+  const [selectedEndSlot, setSelectedEndSlot] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCode, setSelectedCode] = useState("+91");
 
@@ -131,75 +140,68 @@ export default function RegistrationPage() {
     setData(getCountryData());
   }, []);
 
-  // Format Date for Batch Slot label
-  const nextSundayFormatted = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + ((7 - d.getDay()) % 7) || 7);
-    const day = d.getDate();
-    const month = d.toLocaleDateString("en-US", { month: "short" });
+  const timeHelpers = useMemo(() => {
+    const today = new Date();
+    const nextSat = new Date(today);
+    nextSat.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7) || 7);
+    const nextSun = new Date(today);
+    nextSun.setDate(today.getDate() + ((7 - today.getDay() + 7) % 7) || 7);
 
-    const getSuffix = (n) => {
-      if (n > 3 && n < 21) return "th";
-      switch (n % 10) {
-        case 1:
-          return "st";
-        case 2:
-          return "nd";
-        case 3:
-          return "rd";
-        default:
-          return "th";
-      }
-    };
-    return `${month} ${day}${getSuffix(day)}`;
+    const endSat = new Date(nextSat);
+    endSat.setDate(nextSat.getDate() + 7);
+    const endSun = new Date(nextSun);
+    endSun.setDate(nextSun.getDate() + 7);
+
+    return { nextSat, nextSun, endSat, endSun };
   }, []);
 
-const convertedSlots = useMemo(() => {
-  if (!selectedTz) return [];
+  const startOptions = useMemo(() => {
+    if (!selectedTz) return [];
+    const configs = [
+      { day: timeHelpers.nextSat, h: 12, m: 30, label: "6:00 PM IST" },
+      { day: timeHelpers.nextSun, h: 2, m: 30, label: "8:00 AM IST" },
+    ];
 
-  const today = new Date();
-  
-  // Find Next Saturday
-  const nextSat = new Date(today);
-  nextSat.setDate(today.getDate() + (6 - today.getDay() + 7) % 7 || 7);
-  
-  // Find Next Sunday
-  const nextSun = new Date(today);
-  nextSun.setDate(today.getDate() + (7 - today.getDay() + 7) % 7 || 7);
-
-  // Define the two sessions with their specific UTC anchors
-  const sessions = [
-    { day: nextSat, hours: 12, mins: 30 }, // Saturday 6:00 PM IST
-    { day: nextSun, hours: 2,  mins: 30 }  // Sunday 8:00 AM IST
-  ];
-
-  return sessions.map((session, idx) => {
-    const sessionDate = new Date(session.day);
-    sessionDate.setUTCHours(session.hours, session.mins, 0, 0);
-
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: selectedTz,
-      weekday: "short", 
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
+    return configs.map((c) => {
+      const d = new Date(c.day);
+      d.setUTCHours(c.h, c.m, 0, 0);
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: selectedTz,
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const formatted = formatter.format(d);
+      return { value: formatted, label: `${formatted} (${c.label})` };
     });
+  }, [selectedTz, timeHelpers]);
 
-    const parts = formatter.formatToParts(sessionDate);
-    const getPart = (type) => parts.find(p => p.type === type).value;
+  const endOptions = useMemo(() => {
+    if (!selectedTz) return [];
+    const configs = [
+      { day: timeHelpers.endSat, h: 13, m: 30, label: "7:00 PM IST" },
+      { day: timeHelpers.endSun, h: 3, m: 30, label: "9:00 AM IST" },
+    ];
 
-    const timeStr = `${getPart('hour')}:${getPart('minute')} ${getPart('dayPeriod')}`;
-    const dayStr = getPart('weekday');
-    const dateStr = `${getPart('month')} ${getPart('day')}`;
-
-    return {
-      value: `${timeStr} (${selectedTz})`,
-      label: `Slot ${idx + 1}: ${timeStr.toLowerCase()} (${dayStr}, ${dateStr})`,
-    };
-  });
-}, [selectedTz]);
+    return configs.map((c) => {
+      const d = new Date(c.day);
+      d.setUTCHours(c.h, c.m, 0, 0);
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: selectedTz,
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const formatted = formatter.format(d);
+      return { value: formatted, label: `${formatted} (${c.label})` };
+    });
+  }, [selectedTz, timeHelpers]);
 
   const handleEnrollment = async (e) => {
     e.preventDefault();
@@ -211,6 +213,8 @@ const convertedSlots = useMemo(() => {
       country: selectedCountry,
       countryCode: selectedCode,
       timezone: selectedTz,
+      startSession: selectedStartSlot,
+      endSession: selectedEndSlot,
       moduleTitle,
       status: "active",
     };
@@ -242,7 +246,7 @@ const convertedSlots = useMemo(() => {
     <div className="min-h-screen py-6 px-6 bg-[#FFFBF2]">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-6">
-          <p className="text-[9px] font-bold text-[#D4A017] tracking-widest uppercase mb-1">
+          <p className="text-[9px] font-black text-[#D4A017] tracking-widest uppercase mb-1">
             Step 1 of 2
           </p>
           <h1
@@ -328,37 +332,55 @@ const convertedSlots = useMemo(() => {
                 Live Schedule
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
               <SearchableSelect
-                label="Time Zone"
+                label="1. Select Your Time Zone"
                 options={data.timezones}
                 value={selectedTz}
                 onChange={setSelectedTz}
                 placeholder="Search..."
                 customHeight={FIELD_HEIGHT}
               />
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
-                  Batch Slot
-                </label>
-                <select
-                  required
-                  name="selectedSlot"
-                  disabled={!selectedTz}
-                  className="w-full bg-white border border-[#5C3A1E]/20 rounded-lg font-bold text-sm text-[#5C3A1E] disabled:opacity-20 cursor-pointer outline-none px-3"
-                  style={{ height: FIELD_HEIGHT }}
-                >
-                  <option value="">
-                    {selectedTz ? "Select slot" : "Wait..."}
-                  </option>
-                  {convertedSlots.map((s, i) => (
-                    <option key={i} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SearchableSelect
+                  label="2. Start Session (LIVE)"
+                  options={startOptions}
+                  value={selectedStartSlot}
+                  onChange={setSelectedStartSlot}
+                  placeholder={
+                    selectedTz ? "Choose start..." : "Select timezone first"
+                  }
+                  customHeight={FIELD_HEIGHT}
+                />
+                <SearchableSelect
+                  label="3. Ending Session (LIVE)"
+                  options={endOptions}
+                  value={selectedEndSlot}
+                  onChange={setSelectedEndSlot}
+                  placeholder={
+                    selectedTz ? "Choose end..." : "Select timezone first"
+                  }
+                  customHeight={FIELD_HEIGHT}
+                />
               </div>
             </div>
+            <p
+              className={`${crimson.className} text-gray-700 text-[14px] ml-[10px]`}
+            >
+              <p>Note:</p>
+              <ul className=" ml-[10px] ">
+                <li>
+                  * During the week, you can go through the recorded modules at
+                  your convenient time.
+                </li>
+                {/* <br /> */}
+                <li>
+                  * Practice corrections support by Our Expert Teachers and
+                  whatsapp group support will be available throughout the week
+                </li>
+              </ul>
+            </p>
           </section>
 
           {/* GEOGRAPHY */}
