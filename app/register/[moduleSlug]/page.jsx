@@ -19,15 +19,13 @@ const SearchableSelect = ({
   onChange,
   placeholder,
   label,
-  customHeight = "42px",
+  customHeight = "40px",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const containerRef = useRef(null);
 
-  // CRITICAL FIX: Ensure options is always an array before filtering
   const safeOptions = Array.isArray(options) ? options : [];
-
   const filtered = safeOptions.filter((opt) =>
     opt.label.toLowerCase().includes(search.toLowerCase()),
   );
@@ -40,12 +38,6 @@ const SearchableSelect = ({
     document.addEventListener("mousedown", clickOutside);
     return () => document.removeEventListener("mousedown", clickOutside);
   }, []);
-
-  const handleSelect = (optValue) => {
-    onChange(optValue);
-    setIsOpen(false);
-    setSearch(""); // Reset search on selection
-  };
 
   return (
     <div className="space-y-1 relative" ref={containerRef}>
@@ -91,28 +83,23 @@ const SearchableSelect = ({
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="max-h-48 overflow-y-auto custom-scrollbar bg-white">
-              {filtered.length > 0 ? (
-                filtered.map((opt, i) => (
-                  <div
-                    key={`${opt.value}-${i}`}
-                    onClick={() => handleSelect(opt.value)}
-                    className="px-4 py-2.5 text-xs hover:bg-[#E8720C]/10 cursor-pointer flex justify-between items-center text-[#5C3A1E] font-bold transition-colors"
-                  >
-                    <span className="truncate pr-4">{opt.label}</span>
-                    {value === opt.value && (
-                      <Check
-                        size={14}
-                        className="text-[#E8720C] flex-shrink-0"
-                      />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="px-4 py-3 text-[10px] text-[#5C3A1E]/30 italic text-center">
-                  No results
+            <div className="max-h-48 overflow-y-auto bg-white">
+              {filtered.map((opt, i) => (
+                <div
+                  key={`${opt.value}-${i}`}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                    setSearch("");
+                  }}
+                  className="px-4 py-2.5 text-xs hover:bg-[#E8720C]/10 cursor-pointer flex justify-between items-center text-[#5C3A1E] font-bold"
+                >
+                  <span className="truncate pr-4">{opt.label}</span>
+                  {value === opt.value && (
+                    <Check size={14} className="text-[#E8720C]" />
+                  )}
                 </div>
-              )}
+              ))}
             </div>
           </motion.div>
         )}
@@ -131,7 +118,6 @@ export default function RegistrationPage() {
     phoneCodes: [],
   });
 
-  // Explicit Selection States
   const [selectedTz, setSelectedTz] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCode, setSelectedCode] = useState("+91");
@@ -145,30 +131,75 @@ export default function RegistrationPage() {
     setData(getCountryData());
   }, []);
 
-  const nextSunday = useMemo(() => {
+  // Format Date for Batch Slot label
+  const nextSundayFormatted = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() + ((7 - d.getDay()) % 7) || 7);
-    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    const day = d.getDate();
+    const month = d.toLocaleDateString("en-US", { month: "short" });
+
+    const getSuffix = (n) => {
+      if (n > 3 && n < 21) return "th";
+      switch (n % 10) {
+        case 1:
+          return "st";
+        case 2:
+          return "nd";
+        case 3:
+          return "rd";
+        default:
+          return "th";
+      }
+    };
+    return `${month} ${day}${getSuffix(day)}`;
   }, []);
 
-  const convertedSlots = useMemo(() => {
-    if (!selectedTz) return [];
-    return ["11:00", "19:00"].map((time, idx) => {
-      const [hours, minutes] = time.split(":");
-      const date = new Date();
-      date.setHours(parseInt(hours), parseInt(minutes), 0);
-      const localTime = new Intl.DateTimeFormat("en-US", {
-        timeZone: selectedTz,
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      }).format(date);
-      return {
-        value: `${localTime} (${selectedTz})`,
-        label: `Slot ${idx + 1}: ${localTime.toLowerCase()} (${nextSunday}, 2026)`,
-      };
+const convertedSlots = useMemo(() => {
+  if (!selectedTz) return [];
+
+  const today = new Date();
+  
+  // Find Next Saturday
+  const nextSat = new Date(today);
+  nextSat.setDate(today.getDate() + (6 - today.getDay() + 7) % 7 || 7);
+  
+  // Find Next Sunday
+  const nextSun = new Date(today);
+  nextSun.setDate(today.getDate() + (7 - today.getDay() + 7) % 7 || 7);
+
+  // Define the two sessions with their specific UTC anchors
+  const sessions = [
+    { day: nextSat, hours: 12, mins: 30 }, // Saturday 6:00 PM IST
+    { day: nextSun, hours: 2,  mins: 30 }  // Sunday 8:00 AM IST
+  ];
+
+  return sessions.map((session, idx) => {
+    const sessionDate = new Date(session.day);
+    sessionDate.setUTCHours(session.hours, session.mins, 0, 0);
+
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: selectedTz,
+      weekday: "short", 
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
-  }, [selectedTz, nextSunday]);
+
+    const parts = formatter.formatToParts(sessionDate);
+    const getPart = (type) => parts.find(p => p.type === type).value;
+
+    const timeStr = `${getPart('hour')}:${getPart('minute')} ${getPart('dayPeriod')}`;
+    const dayStr = getPart('weekday');
+    const dateStr = `${getPart('month')} ${getPart('day')}`;
+
+    return {
+      value: `${timeStr} (${selectedTz})`,
+      label: `Slot ${idx + 1}: ${timeStr.toLowerCase()} (${dayStr}, ${dateStr})`,
+    };
+  });
+}, [selectedTz]);
 
   const handleEnrollment = async (e) => {
     e.preventDefault();
@@ -218,7 +249,7 @@ export default function RegistrationPage() {
             className="text-2xl font-black text-[#5C3A1E] uppercase leading-tight"
             style={{ fontFamily: "var(--font-cinzel)" }}
           >
-            Enroll <span className="text-[#E8720C]">Online</span>
+            Course <span className="text-[#E8720C]">Enrollment</span>
           </h1>
         </div>
 
@@ -226,11 +257,12 @@ export default function RegistrationPage() {
           onSubmit={handleEnrollment}
           className="bg-white rounded-3xl p-6 md:p-8 border border-[#5C3A1E]/10 space-y-6 shadow-xl shadow-[#5C3A1E]/5"
         >
+          {/* IDENTITY */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-[#5C3A1E]/5">
               <User size={14} className="text-[#E8720C]" />
               <span className="text-[9px] font-black uppercase tracking-widest text-[#D4A017]">
-                Identity
+                Identity Details
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -238,14 +270,14 @@ export default function RegistrationPage() {
                 required
                 name="firstName"
                 placeholder="First Name"
-                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] placeholder:text-[#5C3A1E]/20 outline-none px-3"
+                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
                 style={{ height: FIELD_HEIGHT }}
               />
               <input
                 required
                 name="lastName"
                 placeholder="Last Name"
-                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] placeholder:text-[#5C3A1E]/20 outline-none px-3"
+                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
                 style={{ height: FIELD_HEIGHT }}
               />
               <input
@@ -253,12 +285,42 @@ export default function RegistrationPage() {
                 name="email"
                 type="email"
                 placeholder="Email Address"
-                className="md:col-span-2 w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] placeholder:text-[#5C3A1E]/20 outline-none px-3"
+                className="md:col-span-2 w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
                 style={{ height: FIELD_HEIGHT }}
               />
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  Age
+                </label>
+                <input
+                  required
+                  name="age"
+                  type="number"
+                  placeholder="Age"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
+                  style={{ height: FIELD_HEIGHT }}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  Gender
+                </label>
+                <select
+                  required
+                  name="gender"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3 cursor-pointer"
+                  style={{ height: FIELD_HEIGHT }}
+                >
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
             </div>
           </section>
 
+          {/* SCHEDULE */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-[#5C3A1E]/5">
               <Clock size={14} className="text-[#E8720C]" />
@@ -299,14 +361,15 @@ export default function RegistrationPage() {
             </div>
           </section>
 
+          {/* GEOGRAPHY */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-[#5C3A1E]/5">
               <Globe size={14} className="text-[#E8720C]" />
               <span className="text-[9px] font-black uppercase tracking-widest text-[#D4A017]">
-                Contact
+                Professional & Contact
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <SearchableSelect
                 label="Country"
                 options={data.countries}
@@ -315,14 +378,31 @@ export default function RegistrationPage() {
                 placeholder="Search..."
                 customHeight={FIELD_HEIGHT}
               />
-              <input
-                required
-                name="city"
-                placeholder="City"
-                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] placeholder:text-[#5C3A1E]/20 outline-none px-3 mt-auto"
-                style={{ height: FIELD_HEIGHT }}
-              />
-              <div className="flex gap-2 md:col-span-2">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  Occupation
+                </label>
+                <input
+                  required
+                  name="occupation"
+                  placeholder="Occupation"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
+                  style={{ height: FIELD_HEIGHT }}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  City
+                </label>
+                <input
+                  required
+                  name="city"
+                  placeholder="City"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
+                  style={{ height: FIELD_HEIGHT }}
+                />
+              </div>
+              <div className="flex gap-2">
                 <div className="w-[120px]">
                   <SearchableSelect
                     label="Code"
@@ -342,7 +422,7 @@ export default function RegistrationPage() {
                     name="phone"
                     type="tel"
                     placeholder="Mobile"
-                    className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] placeholder:text-[#5C3A1E]/20 outline-none px-3"
+                    className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] outline-none px-3"
                     style={{ height: FIELD_HEIGHT }}
                   />
                 </div>

@@ -1,37 +1,39 @@
+// lib/registration-data.js
+
 export const getCountryData = () => {
-  const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-  const countryCodes = [
-    "IN", "US", "GB", "AE", "SG", "AU", "CA", "DE", "FR", "JP", "MY", "NZ", "ZA", "CH", "ES", "IT"
-  ];
+  // 1. Manually defined Timezones to guarantee the format India (IST) etc.
+  const timezones = [
+    { value: "Asia/Kolkata", label: "India (IST)" },
+    { value: "Australia/Sydney", label: "Australia (AEST)" },
+    { value: "Asia/Singapore", label: "East Asia (SGT)" },
+    { value: "Europe/London", label: "Europe & UK (GMT)" },
+    { value: "Asia/Dubai", label: "Middle East (GST)" },
+    { value: "Asia/Qatar", label: "Middle East (AST)" },
+    { value: "America/Chicago", label: "USA (CST)" },
+    { value: "America/New_York", label: "USA (EST)" },
+    { value: "America/Los_Angeles", label: "USA (PST)" }
+  ].sort((a, b) => a.label.localeCompare(b.label));
 
-  const countries = countryCodes.map(code => ({
-    value: regionNames.of(code),
-    label: regionNames.of(code)
-  })).sort((a, b) => a.label.localeCompare(b.label));
+  // 2. Comprehensive Countries
+  const countries = [
+    { value: "India", label: "India" },
+    { value: "United States", label: "United States" },
+    { value: "United Kingdom", label: "United Kingdom" },
+    { value: "UAE", label: "United Arab Emirates" },
+    { value: "Singapore", label: "Singapore" },
+    { value: "Australia", label: "Australia" },
+    { value: "Qatar", label: "Qatar" }
+  ].sort((a, b) => a.label.localeCompare(b.label));
 
-  const timezones = Intl.supportedValuesOf('timeZone').map(tz => {
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: tz,
-      timeZoneName: 'short'
-    }).formatToParts(new Date());
-    const abbr = parts.find(p => p.type === 'timeZoneName')?.value || "";
-    return { value: tz, label: `${tz} (${abbr})` };
-  });
-
-  // Explicitly defined phone codes to ensure they are never empty
+  // 3. Phone Codes
   const phoneCodes = [
     { value: "+91", label: "+91 (India)" },
-    { value: "+1", label: "+1 (USA/Canada)" },
+    { value: "+1", label: "+1 (USA)" },
     { value: "+44", label: "+44 (UK)" },
     { value: "+971", label: "+971 (UAE)" },
     { value: "+65", label: "+65 (Singapore)" },
-    { value: "+61", label: "+61 (Australia)" },
-    { value: "+49", label: "+49 (Germany)" },
-    { value: "+33", label: "+33 (France)" },
-    { value: "+81", label: "+81 (Japan)" },
-    { value: "+60", label: "+60 (Malaysia)" },
-    { value: "+64", label: "+64 (NZ)" }
-  ].sort((a, b) => a.label.localeCompare(b.label));
+    { value: "+61", label: "+61 (Australia)" }
+  ];
 
   return { countries, timezones, phoneCodes };
 };
