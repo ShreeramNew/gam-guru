@@ -371,7 +371,7 @@ export default function RegistrationPage() {
               <p>Note:</p>
               <ul className=" ml-[10px] ">
                 <li>
-                  * During the week, you can go through the recorded modules at
+                  * During the week, you will be going through the pre recorded learning modules at
                   your convenient time.
                 </li>
                 {/* <br /> */}
