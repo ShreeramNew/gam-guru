@@ -18,6 +18,9 @@ export async function POST(req) {
       occupation,
       moduleTitle,
       status,
+      timezone,
+      startSession,
+      endSession, // NEW FIELDS
       razorpay_payment_id,
       razorpay_order_id,
       razorpay_signature,
@@ -60,16 +63,19 @@ export async function POST(req) {
     await base(tableName).create([
       {
         fields: {
-          "First Name": firstName || fullName,
-          "Last Name": lastName || "",
+          "First Name": firstName,
+          "Last Name": lastName,
           Email: email,
           Age: age ? parseInt(age) : 0,
-          Gender: gender || "N/A",
-          Occupation: occupation || "N/A",
+          Gender: gender,
+          Occupation: occupation,
           City: city,
           CountryCode: countryCode,
-          Phone: phone,
+          Phone: `${countryCode}${phone}`,
           Module: moduleTitle,
+          Timezone: timezone, // ADDED
+          "Start Session": startSession, // ADDED
+          "End Session": endSession, // ADDED
           "Payment ID": razorpay_payment_id || "N/A",
           "Entry Date": new Date().toISOString().split("T")[0],
         },
@@ -91,7 +97,8 @@ export async function POST(req) {
             gender,
             occupation,
             city,
-            phone: `${countryCode}${phone}`,
+            countryCode,
+            phone: `${phone}`,
             moduleTitle,
           }),
         });

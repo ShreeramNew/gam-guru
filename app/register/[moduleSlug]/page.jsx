@@ -124,7 +124,7 @@ export default function RegistrationPage() {
     timezones: [],
     phoneCodes: [],
   });
-
+  const [showSuccess, setShowSuccess] = useState(false);
   const [selectedTz, setSelectedTz] = useState("");
   const [selectedStartSlot, setSelectedStartSlot] = useState("");
   const [selectedEndSlot, setSelectedEndSlot] = useState("");
@@ -232,7 +232,10 @@ export default function RegistrationPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...finalPayload, ...res }),
         });
-        if (result.ok) router.push("/dashboard");
+        if (result.ok) {
+          setShowSuccess(true);
+          // router.push("/");
+        }
       },
       prefill: { email: details.email, contact: details.phone },
       theme: { color: "#E8720C" },
@@ -371,8 +374,8 @@ export default function RegistrationPage() {
               <p>Note:</p>
               <ul className=" ml-[10px] ">
                 <li>
-                  * During the week, you will be going through the pre recorded learning modules at
-                  your convenient time.
+                  * During the week, you will be going through the pre recorded
+                  learning modules at your convenient time.
                 </li>
                 {/* <br /> */}
                 <li>
@@ -467,6 +470,59 @@ export default function RegistrationPage() {
           <ChevronLeft size={12} /> Back
         </button>
       </div>
+
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-[2.5rem] w-full max-w-[400px] p-10 text-center shadow-2xl relative overflow-hidden"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg
+                  className="w-10 h-10 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="3"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h3
+                className="text-2xl font-black text-[#5C3A1E] uppercase mb-3"
+                style={{ fontFamily: "var(--font-cinzel)" }}
+              >
+                Enrollment Successful
+              </h3>
+              <p className="text-sm font-bold opacity-60 text-[#5C3A1E] leading-relaxed">
+                Namaskaram! Your place is secured. We'll notify you soon
+                regarding batch details and joining instructions.
+              </p>
+              <button
+                onClick={() =>{
+                  router.push("/");
+                  setShowSuccess(false);
+                }}
+                className="mt-8 w-full py-4 rounded-full bg-[#5C3A1E] text-white font-black uppercase text-[11px] cursor-pointer tracking-widest hover:brightness-125 transition-all active:scale-95 shadow-lg"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <script src="https://checkout.razorpay.com/v1/checkout.js" async />
     </div>
   );
