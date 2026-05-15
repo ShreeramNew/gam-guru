@@ -85,29 +85,32 @@ export async function POST(req) {
     // 3. MONGODB BACKEND SYNC (Only for Paid)
     if (status === "active") {
       try {
-        let backendRes=await fetch("http://16.171.143.163:5000/api/users/sync-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            firstName,
-            lastName,
-            name: `${firstName} ${lastName}`,
-            age,
-            gender,
-            occupation,
-            city,
-            countryCode,
-            phone: `${phone}`,
-            moduleTitle,
-          }),
-          signal: AbortSignal.timeout(5000)
-        });
+        let backendRes = await fetch(
+          "http://16.171.143.163:5000/api/users/sync-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email,
+              firstName,
+              lastName,
+              name: `${firstName} ${lastName}`,
+              age,
+              gender,
+              occupation,
+              city,
+              countryCode,
+              phone: `${phone}`,
+              moduleTitle,
+            }),
+            signal: AbortSignal.timeout(5000),
+          },
+        );
         if (!backendRes.ok) {
-      console.error(`AWS Backend returned status: ${backendRes.status}`);
-    } else {
-      console.log("✅ MongoDB Sync Successful");
-    }
+          console.error(`AWS Backend returned status: ${backendRes.status}`);
+        } else {
+          console.log("✅ MongoDB Sync Successful");
+        }
       } catch (backendErr) {
         console.error("Node.js Backend Sync failed:", backendErr.message);
       }
@@ -182,8 +185,8 @@ export async function POST(req) {
           },
         };
 
-        console.log("whatsapp payload:",whatsappPayload);
-        
+        console.log("whatsapp payload:", whatsappPayload);
+
         await fetch(
           "https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/",
           {
@@ -206,7 +209,16 @@ export async function POST(req) {
         status === "active"
           ? `Success: ${moduleTitle}`
           : `Inquiry: ${moduleTitle}`,
-      text: `Namaskaram ${fullName}! Application for ${moduleTitle} received. We will connect soon.`,
+      text: `Namaskaram ${fullName}! Your Registration for ${moduleTitle} with Shlokabhyasa is Successful ✨️🌸 
+      Your 1st Mandatory Live Session is happening on ${startSession} 🌍.
+      Please Use the Below Zoom Link to Join the Session
+      https://us05web.zoom.us/j/8433113469?pwd=GP76pxdhayL1k438VpC3nkAzp8PaBG.1
+
+      For General Updates from Shlokabhyasa, Join Our whatsapp Group ✨️
+      https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC
+
+      Pranam,
+      Team Sanatan After School`,
     });
 
     return NextResponse.json({ success: true });
