@@ -602,9 +602,12 @@ export default function RegistrationPage() {
               <p
                 className={`${crimson.className} text-[#5C3A1E]/60 italic text-center mb-8 text-[16px]`}
               >
-                For General Updates about Shlokabhyasa, Join Our Whatsapp Group <br />
-                <a href="https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC" className=" text-[#055bc5]">
-                  https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC
+                For General Updates about Shlokabhyasa, Join Our <br />
+                <a
+                  href="https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC"
+                  className=" text-[#055bc5]"
+                >
+                  Whatsapp Group
                 </a>
               </p>
               <button
