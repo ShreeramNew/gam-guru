@@ -527,8 +527,10 @@ export default function RegistrationPage() {
                     className={`${crimson.className} text-[17px] text-[#5C3A1E]/80 leading-relaxed italic`}
                   >
                     However, you may voluntarily{" "}
-                    <span className=" font-bold">Contribute any amount as Dakshina</span> to support
-                    our mission and future teachings.
+                    <span className=" font-bold">
+                      Contribute any amount as Dakshina
+                    </span>{" "}
+                    to support our mission and future teachings.
                   </p>
                 </div>
               </div>
@@ -598,10 +600,10 @@ export default function RegistrationPage() {
                 Enrollment Success
               </h3>
               <p
-                className={`${crimson.className} text-[#5C3A1E]/60 italic mb-8 text-[16px]`}
+                className={`${crimson.className} text-[#5C3A1E]/60 italic text-center mb-8 text-[16px]`}
               >
-                Namaskaram! Your place is secured. We will reach out shortly
-                regarding batch details.
+                For General Updates about Shlokabhyasa, Join Our Whatsapp Group
+                https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC
               </p>
               <button
                 onClick={() => {
