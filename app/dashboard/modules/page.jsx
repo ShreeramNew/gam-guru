@@ -5,21 +5,7 @@ import { useSession, signOut } from "next-auth/react"; // Added signOut
 import Image from "next/image";
 import Link from "next/link";
 import { Crimson_Pro } from "next/font/google";
-
-const MODULES = [
-  { title: "GURU ASHTAKAM", image: "/GuruPaduka.png", slug: "/guru-ashtakam" },
-  { title: "Linga Ashtakam", image: "/LingaAshtakam.png", slug: "/naga-stuti" },
-  {
-    title: "KALA BHAIRAVA ASHTAKAM",
-    image: "/KalaBhairava.png",
-    slug: "/kala-bhairava",
-  },
-  {
-    title: "LAKSHMI ASHTAKAM",
-    image: "/lakshmi.png",
-    slug: "/lakshmi-ashtakam",
-  },
-];
+import MODULES from "@/app/lib/ModulesData";
 
 const crimson = Crimson_Pro({
   subsets: ["latin"],

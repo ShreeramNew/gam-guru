@@ -56,7 +56,7 @@ export default function HeroSection() {
             className="text-white leading-[0.9] font-black uppercase mb-2 shadow-black/20 drop-shadow-sm"
             style={{ fontSize: "clamp(52px, 10vw, 96px)" }}
           >
-            Shloka <span className="text-[#D4A017]">bhyasa</span>
+            Shloka<span className="text-[#D4A017]">bhyasa</span>
           </h1>
         </div>
         <p
@@ -67,16 +67,15 @@ export default function HeroSection() {
         </p>
 
         <div className="flex flex-col md:flex-row items-center gap-6">
-          <button className="bg-[#E8720C] hover:bg-[#ff8c2b] text-white text-[14px] tracking-[0.2em] font-bold px-14 py-4 rounded-full transition-all uppercase active:scale-95 shadow-[0_0_30px_rgba(232,114,12,0.6)] cursor-pointer">
+          <a href="#modules" className="bg-[#E8720C] hover:bg-[#ff8c2b] text-white text-[14px] tracking-[0.2em] font-bold px-14 py-4 rounded-full transition-all uppercase active:scale-95 shadow-[0_0_30px_rgba(232,114,12,0.6)] cursor-pointer">
             Enroll Now
-          </button>
+          </a>
           <a
-            href="/dashboard"
-            target="_blank"
-            // onClick={() => router.push("/dashboard")}
+            href="#learnmore"
+            // target="_blank"
             className="border border-[#D4A017]/40 hover:bg-[#D4A017]/10 text-[#D4A017] text-[12px] tracking-[0.2em] font-bold px-12 py-4 rounded-sm transition-all uppercase cursor-pointer backdrop-blur-sm"
           >
-            {status === "authenticated" ? "Dashboard" : "Login"}
+            Learn More
           </a>
         </div>
         <div className="mt-14 w-32 h-[1.5px] bg-gradient-to-r from-transparent via-[#D4A017]/70 to-transparent" />

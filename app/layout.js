@@ -45,7 +45,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark scroll-smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${yatra.variable} ${nunito.variable} ${cinzel.variable} antialiased bg-[#0a0909] text-[#e5e7eb]`}
       >

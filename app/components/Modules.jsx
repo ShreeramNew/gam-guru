@@ -1,8 +1,9 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import MODULES from "../lib/ModulesData";
 
 const useNextSunday = () => {
   return useMemo(() => {
@@ -24,55 +25,12 @@ const useNextSunday = () => {
   }, []);
 };
 
-const MODULES = [
-  {
-    title: "GURU ASHTAKAM",
-    image: "/GuruPaduka.png",
-    description: "Honoring the spiritual guide through the sacred Guru Paduka.",
-    price: { original: 1200, current: 777 },
-    dPrice: { original: 35, current: 21 },
-    status: "active",
-    batchLabel: true,
-    blurPrice: false,
-  },
-  {
-    title: "LINGA ASHTAKAM",
-    image: "/LingaAshtakam.png",
-    description: "Adoration to the Eternal Source for the destruction of grief and ego.",
-    price: { original: 1500, current: 999 },
-    dPrice: { original: 45, current: 33 },
-    status: "active",
-    batchLabel: true,
-    blurPrice: false,
-  },
-  {
-    title: "KALA BHAIRAVA ASHTAKAM",
-    image: "/KalaBhairava.png",
-    description: "Connect with the divine guardian of time and protection.",
-    price: { original: 1500, current: 999 },
-    dPrice: { original: 45, current: 33 },
-    status: "active",
-    batchLabel: true,
-    blurPrice: false,
-  },
-  {
-    title: "LAKSHMI ASHTAKAM",
-    image: "/lakshmi.png",
-    description: "Invoking the grace of the Goddess of wealth and prosperity.",
-    price: { original: 2000, current: 1499 },
-    dPrice: { original: 60, current: 45 },
-    status: "active",
-    batchLabel: true,
-    blurPrice: false,
-  },
-];
-
 export default function ModuleShowcase() {
   const [selectedModule, setSelectedModule] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successType, setSuccessType] = useState("enrollment");
-  const router=useRouter();
+  const router = useRouter();
 
   const nextSundayStr = useNextSunday();
 
@@ -188,8 +146,21 @@ export default function ModuleShowcase() {
     }
   };
 
+  // Related to price format
+  const [isIndianIP, setIsIndianIP] = useState(true);
+
+  useEffect(() => {
+    // Auto-detect location to show correct currency on cards
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => setIsIndianIP(data.country_code === "IN"))
+      .catch(() => setIsIndianIP(true));
+  }, []);
+
+  const symbol = isIndianIP ? "₹" : "$";
+
   return (
-    <section className="w-full py-20 bg-[#FDF6E3]">
+    <section className="w-full py-20 bg-[#FDF6E3]" id="modules">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <p className="text-[11px] font-black uppercase tracking-[0.5em] text-[#E8720C] mb-4">
@@ -204,71 +175,79 @@ export default function ModuleShowcase() {
           <div className="w-16 h-[2.5px] bg-[#E8720C] mx-auto mt-6" />
         </div>
 
+        {/* Module cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MODULES.map((module, idx) => (
-            <motion.div
-              key={idx}
-              className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+      {MODULES.map((module, idx) => (
+        <motion.div
+          key={idx}
+          className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 cursor-pointer"
+        >
+          {/* Image Section */}
+          <div className="relative aspect-[4/3] overflow-hidden">
+            <Image
+              src={module.image}
+              alt={module.title}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            {module.status === "coming_soon" && (
+              <div className="absolute top-6 -right-12 bg-[#E8720C] text-white font-black text-[9px] uppercase tracking-[0.3em] py-2 px-16 rotate-[35deg] shadow-lg z-10">
+                Coming Soon
+              </div>
+            )}
+          </div>
+
+          <div className="p-7 pt-8 flex flex-col items-center text-center relative flex-grow">
+            {/* Title Section (Description Removed) */}
+            <div className="min-h-[50px] flex flex-col justify-center mb-6">
+              <h3
+                className="text-[16px] font-black uppercase tracking-widest text-[#5C3A1E] leading-tight"
+                style={{ fontFamily: "var(--font-cinzel)" }}
+              >
+                {module.title}
+              </h3>
+            </div>
+
+            {/* Quick Specs Section */}
+            <div className="w-full py-5 border-y border-[#5C3A1E]/5 space-y-3 mb-4">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Age</span>
+                <span className="text-[11px] font-bold text-[#5C3A1E]">{module.ageLimit}</span>
+              </div>
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Sessions</span>
+                <span className="text-[11px] font-bold text-[#5C3A1E]">{module.sessionCount}</span>
+              </div>
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Next Batch</span>
+                <span className={`text-[11px] font-bold ${module.status === "active" ? "text-[#E8720C]" : "text-[#5C3A1E]"}`}>
+                  {module.status === "active" ? nextSundayStr : "Coming Soon"}
+                </span>
+              </div>
+            </div>
+
+            {/* Pricing Section */}
+            <div
+              className={`mt-4 flex gap-3 items-center ${module.blurPrice ? "blur-[7px] opacity-40 select-none" : "opacity-100"}`}
             >
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <Image
-                  src={module.image}
-                  alt={module.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                {module.status === "coming_soon" && (
-                  <div className="absolute top-6 -right-12 bg-[#E8720C] text-white font-black text-[9px] uppercase tracking-[0.3em] py-2 px-16 rotate-[35deg] shadow-lg z-10">
-                    Coming Soon
-                  </div>
-                )}
-              </div>
-              <div className="p-7 pt-9 flex flex-col items-center text-center relative flex-grow">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center px-4">
-                  {module.batchLabel ? (
-                    <div className="bg-white px-4 py-2 rounded-full border border-[#E8720C]/30 shadow-md whitespace-nowrap z-20">
-                      <p className="text-[9px] font-black uppercase text-[#E8720C]">
-                        Next Batch: {nextSundayStr}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="h-4" />
-                  )}
-                </div>
-                <div className="min-h-[100px] flex flex-col justify-center space-y-2">
-                  <h3
-                    className="text-[16px] font-black uppercase tracking-widest text-[#5C3A1E]"
-                    style={{ fontFamily: "var(--font-cinzel)" }}
-                  >
-                    {module.title}
-                  </h3>
-                  <p className="text-[12px] font-bold opacity-60 text-[#5C3A1E]">
-                    {module.description}
-                  </p>
-                </div>
-                <div
-                  className={`mt-5 flex gap-3 items-center ${module.blurPrice ? "blur-[7px] opacity-40 select-none" : "opacity-100"}`}
-                >
-                  <span
-                    className="text-sm line-through opacity-40 font-bold"
-                    style={{ color: "#000000" }}
-                  >
-                    ₹{module.price.original}
-                  </span>
-                  <span className="text-2xl font-black text-[#5C3A1E]">
-                    ₹{module.price.current}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleAction(module)}
-                  className="w-full mt-6 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg active:scale-95 cursor-pointer"
-                >
-                  {module.status === "active" ? "Enroll Now" : "Notify Me"}
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              <span className="text-sm line-through opacity-30 font-bold text-black">
+                {symbol}{isIndianIP ? module.price.original : module.dPrice.original}
+              </span>
+              <span className="text-2xl font-black text-[#5C3A1E]">
+                {symbol}{isIndianIP ? module.price.current : module.dPrice.current}
+              </span>
+            </div>
+
+            <button
+              onClick={() => handleAction(module)}
+              className="w-full mt-7 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg shadow-[#E8720C]/20 hover:brightness-110 active:scale-95 transition-all"
+            >
+              {module.status === "active" ? "Enroll Now" : "Notify Me"}
+            </button>
+          </div>
+        </motion.div>
+      ))}
+    </div>
       </div>
 
       <AnimatePresence>
