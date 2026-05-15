@@ -25,7 +25,7 @@ export default function Loading() {
       if (status === "authenticated" && session?.user?.email) {
         try {
           const response = await fetch(
-            "http://localhost:5000/api/users/check-auth",
+            "http://16.171.143.163:5000/api/users/check-auth",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
