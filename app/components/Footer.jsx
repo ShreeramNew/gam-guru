@@ -48,7 +48,7 @@ export default function Footer() {
               Follow Us
             </h4>
             <div className="flex flex-col gap-4 w-full max-w-[220px]">
-              <a href="#" className="flex items-center gap-4 group">
+              <a target="_blank" href="https://www.instagram.com/sanatan.after.school?igsh=MTl2M3Y2NGw4Mnlo" className="flex items-center gap-4 group">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-300 group-hover:scale-105"
                      style={{ 
                         backgroundColor: "rgba(225, 48, 108, 0.15)", 
@@ -60,7 +60,7 @@ export default function Footer() {
                 <span className="text-white/80 text-[13px] font-bold uppercase tracking-widest group-hover:text-white transition-colors">Instagram</span>
               </a>
 
-              <a href="#" className="flex items-center gap-4 group">
+              <a target="_blank" href="https://www.youtube.com/@gam_guru" className="flex items-center gap-4 group">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-300 group-hover:scale-105"
                      style={{ 
                         backgroundColor: "rgba(255, 0, 0, 0.15)", 
@@ -80,7 +80,7 @@ export default function Footer() {
               Get In Touch
             </h4>
             <div className="flex flex-col gap-4 w-full max-w-[280px]">
-              <a href="#" className="flex items-center gap-4 group">
+              <a target="_blank" href="https://wa.me/918296486369" className="flex items-center gap-4 group">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-300 group-hover:scale-105"
                      style={{ 
                         backgroundColor: "rgba(37, 211, 102, 0.15)", 
@@ -110,7 +110,7 @@ export default function Footer() {
         {/* Bottom Copyright Bar */}
         <div className="pt-8 border-t border-white/10 text-center">
           <p className="text-[10px] font-bold text-white/30 tracking-[0.2em] uppercase leading-relaxed">
-            © 2025 Sanatan After School <span className="hidden md:inline"> · </span> All rights reserved <span className="hidden md:inline"> · </span> 
+            © 2026 Sanatan After School <span className="hidden md:inline"> · </span> All rights reserved <span className="hidden md:inline"> · </span> 
             <span style={{ color: goldPrimary }} className="opacity-80 ml-1 cursor-pointer">sanatanafterschool.com</span>
           </p>
         </div>

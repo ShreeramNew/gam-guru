@@ -175,79 +175,79 @@ export default function ModuleShowcase() {
           <div className="w-16 h-[2.5px] bg-[#E8720C] mx-auto mt-6" />
         </div>
 
-        {/* Module cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {MODULES.map((module, idx) => (
-        <motion.div
-          key={idx}
-          className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 cursor-pointer"
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  {MODULES.map((module, idx) => (
+    <motion.div
+      key={idx}
+      className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
+    >
+      {/* Image Section */}
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <Image
+          src={module.image}
+          alt={module.title}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        {module.status === "coming_soon" && (
+          <div className="absolute top-5 -right-12 bg-[#E8720C] text-white font-black text-[8px] uppercase tracking-[0.3em] py-1.5 px-14 rotate-[35deg] shadow-lg z-10">
+            Coming Soon
+          </div>
+        )}
+      </div>
+
+      {/* Content Section */}
+      <div className="p-6 flex flex-col items-center flex-grow">
+        {/* Title: Tighter spacing and clear font */}
+        <h3
+          className="text-[15px] font-black uppercase tracking-[0.15em] text-[#5C3A1E] text-center mb-5 leading-tight"
+          style={{ fontFamily: "var(--font-cinzel)" }}
         >
-          {/* Image Section */}
-          <div className="relative aspect-[4/3] overflow-hidden">
-            <Image
-              src={module.image}
-              alt={module.title}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-            {module.status === "coming_soon" && (
-              <div className="absolute top-6 -right-12 bg-[#E8720C] text-white font-black text-[9px] uppercase tracking-[0.3em] py-2 px-16 rotate-[35deg] shadow-lg z-10">
-                Coming Soon
-              </div>
-            )}
+          {module.title}
+        </h3>
+
+        {/* Quick Specs: Integrated look with soft background */}
+        <div className="w-full bg-[#5C3A1E]/[0.02] rounded-2xl p-4 border border-[#5C3A1E]/5 space-y-2.5">
+          <div className="flex justify-between items-center">
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Age</span>
+            <span className="text-[11px] font-bold text-[#5C3A1E]">{module.ageLimit}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Sessions</span>
+            <span className="text-[11px] font-bold text-[#5C3A1E]">{module.sessionCount}</span>
+          </div>
+          <div className="flex justify-between items-center pt-2 border-t border-[#5C3A1E]/5">
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Batch</span>
+            <span className={`text-[11px] font-bold ${module.status === "active" ? "text-[#E8720C]" : "text-[#5C3A1E]/60"}`}>
+              {module.status === "active" ? nextSundayStr : "Coming Soon"}
+            </span>
+          </div>
+        </div>
+
+        {/* Pricing & Button: Grouped for action focus */}
+        <div className="mt-auto pt-5 w-full flex flex-col items-center">
+          <div className={`flex gap-3 items-center mb-4 ${module.blurPrice ? "blur-[5px] opacity-40" : ""}`}>
+            <span className="text-[12px] line-through opacity-30 font-bold text-[#5C3A1E]">
+              {symbol}{isIndianIP ? module.price.original : module.dPrice.original}
+            </span>
+            <span className="text-xl font-black text-[#5C3A1E]">
+              {symbol}{isIndianIP ? module.price.current : module.dPrice.current}
+            </span>
           </div>
 
-          <div className="p-7 pt-8 flex flex-col items-center text-center relative flex-grow">
-            {/* Title Section (Description Removed) */}
-            <div className="min-h-[50px] flex flex-col justify-center mb-6">
-              <h3
-                className="text-[16px] font-black uppercase tracking-widest text-[#5C3A1E] leading-tight"
-                style={{ fontFamily: "var(--font-cinzel)" }}
-              >
-                {module.title}
-              </h3>
-            </div>
+          <button
+            onClick={() => handleAction(module)}
+            className="w-full py-3.5 rounded-full bg-[#E8720C] text-white font-black uppercase text-[10px] tracking-[0.15em] shadow-lg shadow-[#E8720C]/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+          >
+            {module.status === "active" ? "Enroll Now" : "Notify Me"}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  ))}
+</div>
 
-            {/* Quick Specs Section */}
-            <div className="w-full py-5 border-y border-[#5C3A1E]/5 space-y-3 mb-4">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Age</span>
-                <span className="text-[11px] font-bold text-[#5C3A1E]">{module.ageLimit}</span>
-              </div>
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Sessions</span>
-                <span className="text-[11px] font-bold text-[#5C3A1E]">{module.sessionCount}</span>
-              </div>
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Next Batch</span>
-                <span className={`text-[11px] font-bold ${module.status === "active" ? "text-[#E8720C]" : "text-[#5C3A1E]"}`}>
-                  {module.status === "active" ? nextSundayStr : "Coming Soon"}
-                </span>
-              </div>
-            </div>
 
-            {/* Pricing Section */}
-            <div
-              className={`mt-4 flex gap-3 items-center ${module.blurPrice ? "blur-[7px] opacity-40 select-none" : "opacity-100"}`}
-            >
-              <span className="text-sm line-through opacity-30 font-bold text-black">
-                {symbol}{isIndianIP ? module.price.original : module.dPrice.original}
-              </span>
-              <span className="text-2xl font-black text-[#5C3A1E]">
-                {symbol}{isIndianIP ? module.price.current : module.dPrice.current}
-              </span>
-            </div>
-
-            <button
-              onClick={() => handleAction(module)}
-              className="w-full mt-7 py-4 rounded-full bg-[#E8720C] text-white font-black uppercase text-[11px] tracking-widest cursor-pointer shadow-lg shadow-[#E8720C]/20 hover:brightness-110 active:scale-95 transition-all"
-            >
-              {module.status === "active" ? "Enroll Now" : "Notify Me"}
-            </button>
-          </div>
-        </motion.div>
-      ))}
-    </div>
       </div>
 
       <AnimatePresence>
