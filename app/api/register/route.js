@@ -116,9 +116,12 @@ export async function POST(req) {
     // 5. WHATSAPP (MSG91 Integration)
     if (status === "active") {
       try {
+        console.log("Coming to whatsapp section:");
         const msg91AuthKey = process.env.MSG91_AUTH_KEY;
         const msg91TemplateId = "registration_success_notification";
         const msg91Sender = process.env.MSG91_WHATSAPP_SENDER;
+
+        console.log("Check details:", msg91AuthKey, msg91Sender);
 
         const formattedPhone = `${countryCode.replace("+", "")}${phone}`;
 
@@ -173,6 +176,8 @@ export async function POST(req) {
           },
         };
 
+        console.log("whatsapp payload:",whatsappPayload);
+        
         await fetch(
           "https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/",
           {
