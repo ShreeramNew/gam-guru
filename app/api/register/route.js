@@ -209,7 +209,9 @@ export async function POST(req) {
         status === "active"
           ? `Success: ${moduleTitle}`
           : `Inquiry: ${moduleTitle}`,
-      text: `Namaskaram ${fullName}! Your Registration for ${moduleTitle} with Shlokabhyasa is Successful ✨️🌸 
+      text:
+        status === "active"
+          ? `Namaskaram ${fullName}! Your Registration for ${moduleTitle} with Shlokabhyasa is Successful ✨️🌸 
       Your 1st Mandatory Live Session is happening on ${startSession} 🌍.
       Please Use the Below Zoom Link to Join the Session
       https://us05web.zoom.us/j/8433113469?pwd=GP76pxdhayL1k438VpC3nkAzp8PaBG.1
@@ -218,6 +220,8 @@ export async function POST(req) {
       https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC
 
       Pranam,
+      Team Sanatan After School`
+          : `Namaskaram ${fullName}! We have recieved your interest for ${moduleTitle}. We will connect soon.Pranam,
       Team Sanatan After School`,
     });
 
