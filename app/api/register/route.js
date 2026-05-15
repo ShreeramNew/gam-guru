@@ -85,7 +85,7 @@ export async function POST(req) {
     // 3. MONGODB BACKEND SYNC (Only for Paid)
     if (status === "active") {
       try {
-        await fetch("http://16.171.143.163:5000/api/users/sync-payment", {
+        let backendRes=await fetch("http://16.171.143.163:5000/api/users/sync-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -103,7 +103,11 @@ export async function POST(req) {
           }),
           signal: AbortSignal.timeout(5000)
         });
-        console.log("Backend Status:", backendRes.status);
+        if (!backendRes.ok) {
+      console.error(`AWS Backend returned status: ${backendRes.status}`);
+    } else {
+      console.log("✅ MongoDB Sync Successful");
+    }
       } catch (backendErr) {
         console.error("Node.js Backend Sync failed:", backendErr.message);
       }
