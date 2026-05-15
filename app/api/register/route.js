@@ -117,10 +117,14 @@ export async function POST(req) {
     if (status === "active") {
       try {
         const msg91AuthKey = process.env.MSG91_AUTH_KEY;
-        const msg91TemplateId = process.env.MSG91_WHATSAPP_TEMPLATE_ID;
-        const msg91Sender = process.env.MSG91_WHATSAPP_SENDER; // Integrated Number ID
+        const msg91TemplateId = "registration_success_notification";
+        const msg91Sender = process.env.MSG91_WHATSAPP_SENDER;
 
-        // Prepare variables for your template (must match your MSG91 template placeholders)
+        const formattedPhone = `${countryCode.replace("+", "")}${phone}`;
+
+        // Create the custom string for your template placeholder
+        const formattedTimeAndDate = `on ${startSession} (${timezone})`;
+
         const whatsappPayload = {
           integrated_number: msg91Sender,
           content_type: "template",
@@ -129,24 +133,48 @@ export async function POST(req) {
             type: "template",
             template: {
               name: msg91TemplateId,
-              language: { code: "en" }, // Adjust language code if needed
-              components: [
+              language: {
+                code: "en",
+                policy: "deterministic",
+              },
+              to_and_components: [
                 {
-                  type: "body",
-                  parameters: [
-                    { type: "text", text: fullName },
-                    { type: "text", text: moduleTitle },
-                  ],
+                  to: [formattedPhone],
+                  components: {
+                    body_body_name: {
+                      type: "text",
+                      value: fullName,
+                      parameter_name: "body_name",
+                    },
+                    body_body_module_name: {
+                      type: "text",
+                      value: moduleTitle,
+                      parameter_name: "body_module_name",
+                    },
+                    body_body_time_and_date: {
+                      type: "text",
+                      value: formattedTimeAndDate, // Now sends "on 17th May at 9:00pm (IST)"
+                      parameter_name: "body_time_and_date",
+                    },
+                    body_body_date1: {
+                      type: "text",
+                      value: startSession || "N/A",
+                      parameter_name: "body_date1",
+                    },
+                    body_body_date2: {
+                      type: "text",
+                      value: endSession || "N/A",
+                      parameter_name: "body_date2",
+                    },
+                  },
                 },
               ],
             },
           },
-          // MSG91 expects number without '+' (e.g., 917259306815)
-          to: `${countryCode.replace("+", "")}${phone}`,
         };
 
         await fetch(
-          "https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-send",
+          "https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/",
           {
             method: "POST",
             headers: {
@@ -160,7 +188,6 @@ export async function POST(req) {
         console.error("WhatsApp MSG91 failed:", whatsappErr.message);
       }
     }
-
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
