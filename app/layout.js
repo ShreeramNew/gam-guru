@@ -30,10 +30,40 @@ const cinzel = Cinzel({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
+const siteUrl = "https://sanatanafterschool-shlokabhyasa.vercel.app";
+
 export const metadata = {
   title: "Shlokabhyasa | Gam Guru",
   description:
     "Learn Sanatan Shlokas online. Traditional learning powered by Gam Guru - Sanatan After School",
+  metadataBase: new URL(siteUrl),
+  
+  // OPEN GRAPH (Social Media Sharing)
+  openGraph: {
+    title: "Shlokabhyasa | Gam Guru",
+    description: "Learn Sanatan Shlokas online. Traditional learning powered by Gam Guru.",
+    url: siteUrl,
+    siteName: "Shlokabhyasa",
+    images: [
+      {
+        url: "/og-image.png", // Next.js will look in the public folder
+        width: 1160,
+        height: 754,
+        alt: "Shlokabhyasa - Sanatan Shloka Learning Online",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+
+  // TWITTER CARD
+  twitter: {
+    card: "summary_large_image",
+    title: "Shlokabhyasa | Gam Guru",
+    description: "Learn Sanatan Shlokas online. Traditional learning powered by Gam Guru.",
+    images: ["/og-image.png"],
+  },
+
   // FAVICON SETTINGS
   icons: {
     icon: [
@@ -41,9 +71,7 @@ export const metadata = {
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
     ],
-    apple: [
-      { url: "/apple-touch-icon.png" },
-    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
     other: [
       {
         rel: "mask-icon",
