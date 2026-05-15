@@ -113,6 +113,54 @@ export async function POST(req) {
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     });
 
+    // 5. WHATSAPP (MSG91 Integration)
+    if (status === "active") {
+      try {
+        const msg91AuthKey = process.env.MSG91_AUTH_KEY;
+        const msg91TemplateId = process.env.MSG91_WHATSAPP_TEMPLATE_ID;
+        const msg91Sender = process.env.MSG91_WHATSAPP_SENDER; // Integrated Number ID
+
+        // Prepare variables for your template (must match your MSG91 template placeholders)
+        const whatsappPayload = {
+          integrated_number: msg91Sender,
+          content_type: "template",
+          payload: {
+            messaging_product: "whatsapp",
+            type: "template",
+            template: {
+              name: msg91TemplateId,
+              language: { code: "en" }, // Adjust language code if needed
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    { type: "text", text: fullName },
+                    { type: "text", text: moduleTitle },
+                  ],
+                },
+              ],
+            },
+          },
+          // MSG91 expects number without '+' (e.g., 917259306815)
+          to: `${countryCode.replace("+", "")}${phone}`,
+        };
+
+        await fetch(
+          "https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-send",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              authkey: msg91AuthKey,
+            },
+            body: JSON.stringify(whatsappPayload),
+          },
+        );
+      } catch (whatsappErr) {
+        console.error("WhatsApp MSG91 failed:", whatsappErr.message);
+      }
+    }
+
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
