@@ -211,7 +211,8 @@ export async function POST(req) {
           : `Inquiry: ${moduleTitle}`,
       text:
         status === "active"
-          ? `Namaskaram ${fullName}! Your Registration for ${moduleTitle} with Shlokabhyasa is Successful ✨️🌸 
+          ? 
+      `Namaskaram ${fullName}! Your Registration for ${moduleTitle} with Shlokabhyasa is Successful✨️🌸. 
       Your 1st Mandatory Live Session is happening on ${startSession} 🌍.
       Please Use the Below Zoom Link to Join the Session
       https://us05web.zoom.us/j/8433113469?pwd=GP76pxdhayL1k438VpC3nkAzp8PaBG.1
@@ -221,7 +222,8 @@ export async function POST(req) {
 
       Pranam,
       Team Sanatan After School`
-          : `Namaskaram ${fullName}! We have recieved your interest for ${moduleTitle}. We will connect soon.Pranam,
+          : 
+      `Namaskaram ${fullName}! We have recieved your interest for ${moduleTitle}. We will connect soon.Pranam,
       Team Sanatan After School`,
     });
 
