@@ -25,6 +25,85 @@ const useNextSunday = () => {
   }, []);
 };
 
+const CountdownTimer = () => {
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    const calculateTime = () => {
+  const now = new Date();
+  
+  // Set target to May 17, 2026, 20:00:00 (8 PM)
+  const target = new Date("2026-05-17T20:00:00");
+
+  const difference = target - now;
+
+  if (difference > 0) {
+    // We add Math.floor(difference / (1000 * 60 * 60 * 24)) if you want to show DAYS
+    // But to keep your Hours:Min:Sec format, we calculate total hours:
+    setTimeLeft({
+      hours: Math.floor(difference / (1000 * 60 * 60)), // Total hours remaining
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60),
+    });
+  } else {
+    // Timer reached zero
+    setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+  }
+};
+
+    const timer = setInterval(calculateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-6 px-4 bg-[#E8720C]/5 border border-[#E8720C]/20 rounded-3xl mt-6">
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#5C3A1E] mb-2">
+        For the next
+      </p>
+      <div className="flex gap-4 items-center">
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-[#E8720C]">
+            {timeLeft.hours.toString().padStart(2, "0")}
+          </span>
+          <span className="text-[8px] font-bold uppercase text-[#5C3A1E]/50">
+            Hrs
+          </span>
+        </div>
+        <span className="text-xl font-black text-[#E8720C] mb-4">:</span>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-[#E8720C]">
+            {timeLeft.minutes.toString().padStart(2, "0")}
+          </span>
+          <span className="text-[8px] font-bold uppercase text-[#5C3A1E]/50">
+            Min
+          </span>
+        </div>
+        <span className="text-xl font-black text-[#E8720C] mb-4">:</span>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-[#E8720C]">
+            {timeLeft.seconds.toString().padStart(2, "0")}
+          </span>
+          <span className="text-[8px] font-bold uppercase text-[#5C3A1E]/50">
+            Sec
+          </span>
+        </div>
+      </div>
+      <p className="text-[11px] font-bold text-[#5C3A1E] mt-3 text-center leading-relaxed">
+        <span className="text-[#E8720C] font-black">
+          Kala Bhairava Ashtakam
+        </span>{" "}
+        module is offered for{" "}
+        <span className="underline decoration-2">Free</span> on the occasion of
+        launch event.
+      </p>
+    </div>
+  );
+};
+
 export default function ModuleShowcase() {
   const [selectedModule, setSelectedModule] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,95 +239,105 @@ export default function ModuleShowcase() {
   const symbol = isIndianIP ? "₹" : "$";
 
   return (
-    <section className="w-full py-20 bg-[#FDF6E3]" id="modules">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <p className="text-[11px] font-black uppercase tracking-[0.5em] text-[#E8720C] mb-4">
-            Curriculum
-          </p>
-          <h2
-            className="text-4xl md:text-5xl font-black uppercase text-[#5C3A1E]"
-            style={{ fontFamily: "var(--font-cinzel)" }}
-          >
-            Sacred <span className="text-[#E8720C]">Modules</span>
-          </h2>
-          <div className="w-16 h-[2.5px] bg-[#E8720C] mx-auto mt-6" />
-        </div>
-
-       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-  {MODULES.map((module, idx) => (
-    <motion.div
-      key={idx}
-      className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
-    >
-      {/* Image Section */}
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
-          src={module.image}
-          alt={module.title}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        {module.status === "coming_soon" && (
-          <div className="absolute top-5 -right-12 bg-[#E8720C] text-white font-black text-[8px] uppercase tracking-[0.3em] py-1.5 px-14 rotate-[35deg] shadow-lg z-10">
-            Coming Soon
-          </div>
-        )}
-      </div>
-
-      {/* Content Section */}
-      <div className="p-6 flex flex-col items-center flex-grow">
-        {/* Title: Tighter spacing and clear font */}
-        <h3
-          className="text-[15px] font-black uppercase tracking-[0.15em] text-[#5C3A1E] text-center mb-5 leading-tight"
+   <section className="w-full py-20 bg-[#FDF6E3]" id="modules">
+    <div className="max-w-7xl mx-auto px-6">
+      <div className="text-center mb-16">
+        <p className="text-[11px] font-black uppercase tracking-[0.5em] text-[#E8720C] mb-4">
+          Curriculum
+        </p>
+        <h2
+          className="text-4xl md:text-5xl font-black uppercase text-[#5C3A1E]"
           style={{ fontFamily: "var(--font-cinzel)" }}
         >
-          {module.title}
-        </h3>
-
-        {/* Quick Specs: Integrated look with soft background */}
-        <div className="w-full bg-[#5C3A1E]/[0.02] rounded-2xl p-4 border border-[#5C3A1E]/5 space-y-2.5">
-          <div className="flex justify-between items-center">
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Age</span>
-            <span className="text-[11px] font-bold text-[#5C3A1E]">{module.ageLimit}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Sessions</span>
-            <span className="text-[11px] font-bold text-[#5C3A1E]">{module.sessionCount}</span>
-          </div>
-          <div className="flex justify-between items-center pt-2 border-t border-[#5C3A1E]/5">
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Batch</span>
-            <span className={`text-[11px] font-bold ${module.status === "active" ? "text-[#E8720C]" : "text-[#5C3A1E]/60"}`}>
-              {module.status === "active" ? nextSundayStr : "Coming Soon"}
-            </span>
-          </div>
-        </div>
-
-        {/* Pricing & Button: Grouped for action focus */}
-        <div className="mt-auto pt-5 w-full flex flex-col items-center">
-          <div className={`flex gap-3 items-center mb-4 ${module.blurPrice ? "blur-[5px] opacity-40" : ""}`}>
-            <span className="text-[12px] line-through opacity-30 font-bold text-[#5C3A1E]">
-              {symbol}{isIndianIP ? module.price.original : module.dPrice.original}
-            </span>
-            <span className="text-xl font-black text-[#5C3A1E]">
-              {symbol}{isIndianIP ? module.price.current : module.dPrice.current}
-            </span>
-          </div>
-
-          <button
-            onClick={() => handleAction(module)}
-            className="w-full py-3.5 rounded-full bg-[#E8720C] text-white font-black uppercase text-[10px] tracking-[0.15em] shadow-lg shadow-[#E8720C]/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-          >
-            {module.status === "active" ? "Enroll Now" : "Notify Me"}
-          </button>
-        </div>
+          Sacred <span className="text-[#E8720C]">Modules</span>
+        </h2>
+        <div className="w-16 h-[2.5px] bg-[#E8720C] mx-auto mt-6" />
       </div>
-    </motion.div>
-  ))}
-</div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {MODULES.map((module, idx) => (
+          <React.Fragment key={idx}>
+            <motion.div
+              className="bg-white rounded-[2rem] overflow-hidden border border-[#5C3A1E]/10 flex flex-col group relative transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
+            >
+              {/* Image Section */}
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <Image
+                  src={module.image}
+                  alt={module.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                {module.status === "coming_soon" && (
+                  <div className="absolute top-5 -right-12 bg-[#E8720C] text-white font-black text-[8px] uppercase tracking-[0.3em] py-1.5 px-14 rotate-[35deg] shadow-lg z-10">
+                    Coming Soon
+                  </div>
+                )}
+              </div>
 
+              {/* Content Section */}
+              <div className="p-6 flex flex-col items-center flex-grow">
+                <h3
+                  className="text-[15px] font-black uppercase tracking-[0.15em] text-[#5C3A1E] text-center mb-5 leading-tight"
+                  style={{ fontFamily: "var(--font-cinzel)" }}
+                >
+                  {module.title}
+                </h3>
+
+                {/* Quick Specs */}
+                <div className="w-full bg-[#5C3A1E]/[0.02] rounded-2xl p-4 border border-[#5C3A1E]/5 space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Age</span>
+                    <span className="text-[11px] font-bold text-[#5C3A1E]">{module.ageLimit}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Sessions</span>
+                    <span className="text-[11px] font-bold text-[#5C3A1E]">{module.sessionCount}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-[#5C3A1E]/5">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#5C3A1E]/40">Batch</span>
+                    <span className={`text-[11px] font-bold ${module.status === "active" ? "text-[#E8720C]" : "text-[#5C3A1E]/60"}`}>
+                      {module.status === "active" ? nextSundayStr : "Coming Soon"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Pricing & Button */}
+                <div className="mt-auto pt-5 w-full flex flex-col items-center">
+                  <div className={`flex gap-3 items-center mb-4 ${module.blurPrice ? "blur-[5px] opacity-40" : ""}`}>
+                    <span className="text-[12px] line-through opacity-30 font-bold text-[#5C3A1E]">
+                      {symbol}{isIndianIP ? module.price.original : module.dPrice.original}
+                    </span>
+                    <span className="text-xl font-black text-[#5C3A1E]">
+                      {symbol}{isIndianIP ? module.price.current : module.dPrice.current}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleAction(module)}
+                    className="w-full py-3.5 rounded-full bg-[#E8720C] text-white font-black uppercase text-[10px] tracking-[0.15em] shadow-lg shadow-[#E8720C]/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                  >
+                    {module.status === "active" ? "Enroll Now" : "Notify Me"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* MOBILE ONLY: Countdown below Kala Bhairava card (assuming it is the first card) */}
+            {idx === 0 && (
+              <div className="md:hidden">
+                <CountdownTimer />
+              </div>
+            )}
+          </React.Fragment>
+        ))}
       </div>
+
+      {/* DESKTOP ONLY: Countdown below all cards */}
+      <div className="hidden md:block max-w-2xl mx-auto">
+        <CountdownTimer />
+      </div>
+    </div>
 
       <AnimatePresence>
         {selectedModule && (

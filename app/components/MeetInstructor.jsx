@@ -71,9 +71,9 @@ export default function MeetTheInstructor() {
                 className="text-lg leading-relaxed font-medium opacity-80"
                 style={{ color: brownDeep }}
               >
-                A passionate teacher and Dharmic guide with years of experience
-                bringing the beauty of Sanatan culture to children across the
-                globe. Being an Executive Alumni of IIM Visakhapatnam and a
+                A passionate teacher with years of experience teaching shlokas
+                and bringing the beauty of Sanatan culture to Everyone across
+                the globe. Being an Executive Alumni of IIM Visakhapatnam and a
                 student of Sadhguru Gurukulam (Sadhanapada), our instructor
                 blends contemporary learning with timeless wisdom.
               </p>
@@ -85,7 +85,7 @@ export default function MeetTheInstructor() {
                 Trained in Yoga, Vedic traditions, and experiential education,
                 our instructor combines deep spiritual knowledge with a modern,
                 child-friendly approach. Every session is crafted with love,
-                intention, and a deep understanding of how children learn —
+                intention, and a deep understanding,
                 making ancient wisdom not just accessible, but genuinely
                 exciting and transformative process for the next generation.
               </p>
@@ -101,7 +101,7 @@ export default function MeetTheInstructor() {
                 className="text-sm font-black uppercase tracking-[0.3em]"
                 style={{ color: brownDeep }}
               >
-                Namaskaram
+                Sriniketh Bhamidipati
               </span>
             </div>
           </motion.div>
