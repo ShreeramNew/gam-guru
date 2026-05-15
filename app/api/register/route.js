@@ -101,7 +101,9 @@ export async function POST(req) {
             phone: `${phone}`,
             moduleTitle,
           }),
+          signal: AbortSignal.timeout(5000)
         });
+        console.log("Backend Status:", backendRes.status);
       } catch (backendErr) {
         console.error("Node.js Backend Sync failed:", backendErr.message);
       }
