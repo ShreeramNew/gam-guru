@@ -29,37 +29,41 @@ const MODULES = [
     title: "GURU ASHTAKAM",
     image: "/GuruPaduka.png",
     description: "Honoring the spiritual guide through the sacred Guru Paduka.",
-    price: { original: 1100, current: 777 },
+    price: { original: 1200, current: 777 },
+    dPrice: { original: 35, current: 21 },
     status: "active",
     batchLabel: true,
     blurPrice: false,
   },
   {
-    title: "NAGA STUTI",
-    image: "/NagaIdeol.png",
-    description: "Adoration to the serpent deities for strength and healing.",
-    price: { original: 500, current: 333 },
-    status: "coming_soon",
-    batchLabel: false,
+    title: "LINGA ASHTAKAM",
+    image: "/LingaAshtakam.png",
+    description: "Adoration to the Eternal Source for the destruction of grief and ego.",
+    price: { original: 1500, current: 999 },
+    dPrice: { original: 45, current: 33 },
+    status: "active",
+    batchLabel: true,
     blurPrice: false,
   },
   {
     title: "KALA BHAIRAVA ASHTAKAM",
     image: "/KalaBhairava.png",
     description: "Connect with the divine guardian of time and protection.",
-    price: { original: 1200, current: 888 },
-    status: "coming_soon",
-    batchLabel: false,
-    blurPrice: true,
+    price: { original: 1500, current: 999 },
+    dPrice: { original: 45, current: 33 },
+    status: "active",
+    batchLabel: true,
+    blurPrice: false,
   },
   {
     title: "LAKSHMI ASHTAKAM",
     image: "/lakshmi.png",
     description: "Invoking the grace of the Goddess of wealth and prosperity.",
-    price: { original: 1500, current: 999 },
-    status: "coming_soon",
-    batchLabel: false,
-    blurPrice: true,
+    price: { original: 2000, current: 1499 },
+    dPrice: { original: 60, current: 45 },
+    status: "active",
+    batchLabel: true,
+    blurPrice: false,
   },
 ];
 
@@ -224,7 +228,7 @@ export default function ModuleShowcase() {
                   {module.batchLabel ? (
                     <div className="bg-white px-4 py-2 rounded-full border border-[#E8720C]/30 shadow-md whitespace-nowrap z-20">
                       <p className="text-[9px] font-black uppercase text-[#E8720C]">
-                        Next Batch: {nextSundayStr} • 7:00 PM
+                        Next Batch: {nextSundayStr}
                       </p>
                     </div>
                   ) : (
