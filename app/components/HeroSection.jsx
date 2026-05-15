@@ -43,7 +43,7 @@ export default function HeroSection() {
 
         <div className="mb-6 w-full flex flex-col items-center">
           <h1
-            className="text-white leading-[1.1] md:leading-[0.9] font-black uppercase mb-2 drop-shadow-md"
+            className="text-white leading-[1.1] md:leading-[0.9] font-black uppercase mb- drop-shadow-md"
             style={{ fontSize: "clamp(48px, 12vw, 96px)" }}
           >
             {/* On mobile, this will stack. On desktop (md:), it stays together. */}
@@ -53,11 +53,19 @@ export default function HeroSection() {
         </div>
 
         <p
-          className="text-white/90 text-sm md:text-xl italic tracking-wide max-w-[280px] md:max-w-2xl mb-10 md:mb-12 drop-shadow-md"
+          className="text-white/90 text-sm md:text-xl italic tracking-wide capitalize max-w-[280px] md:max-w-2xl mb-10 md:mb-8 drop-shadow-md"
           style={{ fontFamily: "serif" }}
         >
-          Learn Sanatan Shlokas Online
+          Learn Shlokas From Anywhere at anytime
         </p>
+
+        <p
+          className="text-white/90 text-sm md:text-2xl  tracking-wide uppercase max-w-[280px] md:max-w-2xl mb-10 md:mb-12 drop-shadow-md"
+          style={{ fontFamily: "serif" }}
+        >
+          Ashtakas | Stotrams | Stutis
+        </p>
+
 
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full md:w-auto px-6 md:px-0">
           <a href="#modules" className="w-full md:w-auto bg-[#E8720C] hover:bg-[#ff8c2b] text-white text-[13px] md:text-[14px] tracking-[0.15em] md:tracking-[0.2em] font-bold px-10 md:px-14 py-4 rounded-full transition-all uppercase active:scale-95 shadow-[0_0_30px_rgba(232,114,12,0.6)] text-center">

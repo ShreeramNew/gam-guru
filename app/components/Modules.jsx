@@ -60,7 +60,7 @@ const CountdownTimer = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center py-6 px-4 bg-[#E8720C]/5 border border-[#E8720C]/20 rounded-3xl mt-6">
+    <div className="flex flex-col items-center justify-center py-6 px-4 bg-[#E8720C]/5 border border-[#E8720C]/20 rounded-3xl md:mt-6 md:scale-[1.1]">
       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#5C3A1E] mb-2">
         For the next
       </p>
