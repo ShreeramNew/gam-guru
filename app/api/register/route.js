@@ -77,7 +77,7 @@ export async function POST(req) {
           "Start Session": startSession, // ADDED
           "End Session": endSession, // ADDED
           "Payment ID": razorpay_payment_id || "N/A",
-          "Entry Date": new Date().toISOString().split("T")[0],
+          "Entry Date": new Date().toISOString(),
         },
       },
     ]);
