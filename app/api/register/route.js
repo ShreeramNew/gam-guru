@@ -3,6 +3,10 @@ import nodemailer from "nodemailer";
 import Airtable from "airtable";
 import crypto from "crypto";
 
+const airtableBase = new Airtable({ 
+  apiKey: process.env.AIRTABLE_PAT 
+}).base(process.env.AIRTABLE_BASE_ID || "");
+
 export async function POST(req) {
   try {
     const data = await req.json();
@@ -60,7 +64,7 @@ export async function POST(req) {
         ? process.env.AIRTABLE_REGISTER_TABLE_NAME
         : process.env.AIRTABLE_LEADS_TABLE_NAME;
 
-    await base(tableName).create([
+    await airtableBase(tableName).create([
       {
         fields: {
           "First Name": firstName,
