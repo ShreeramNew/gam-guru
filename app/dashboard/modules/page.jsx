@@ -22,14 +22,13 @@ export default function Dashboard() {
     const fetchAccess = async () => {
       if (status === "authenticated" && session?.user?.email) {
         try {
-          const res = await fetch(
-            "http://16.171.143.163:5000/api/users/check-auth",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: session.user.email }),
-            },
-          );
+          // Pointing to your internal Next.js API route instead of the raw http IP address
+          const res = await fetch("/api/verify-auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: session.user.email }),
+          });
+
           const data = await res.json();
 
           if (data.isRegistered) {
@@ -46,6 +45,7 @@ export default function Dashboard() {
         window.location.href = "/";
       }
     };
+
     fetchAccess();
   }, [status, session]);
 
