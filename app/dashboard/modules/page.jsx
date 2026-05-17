@@ -264,10 +264,9 @@ export default function Dashboard() {
                   {hasAccess ? (
                     <Link
                       href={
-                        module.slug ||
-                        `/modules/${encodeURIComponent(module.name || module)
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`
+                        module.slug
+                          ? `/dashboard/modules/${module.slug}`
+                          : `/dashboard/modules/${encodeURIComponent(module.title).toLowerCase().replace(/\s+/g, "-")}`
                       }
                       className="block w-full py-3 bg-[#E8720C] text-white text-[11px] font-black uppercase rounded-full hover:brightness-110 transition-all text-center"
                     >
