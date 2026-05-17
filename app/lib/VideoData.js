@@ -66,8 +66,19 @@ const VIDEO_MANIFEST = {
         url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day1.mp4",
         type: "video/mp4",
         thumbnail: getThumbnailUrl("KalaBhairava", 1),
+        lyrics:
+          "deva rāja sevyamāna pāvanāṅghri paṅkajaṃ||vyāla yajña sūtramindu śekharaṃ kṛpākaram||nāradādi yogi vṛnda vanditaṃ digambaraṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who is adorned by lotus-feet which is revered and served by Indra (Devaraj), Who wears a snake as a sacred thread, who has the moon on his forehead, who is the abode of mercy, whose praises are sung by Narada and other yogis, and who wears the sky as his raiment",
       },
-      // Add subsequent days as needed
+      {
+        title: "Kala Bhairava Ashtakam - Stanza 2",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day2.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 2),
+        lyrics:"bhānu koṭi bhāsvaraṃ bhavābdhitārakaṃ paraṃ||nīla kaṇṭhamīpsitārtha dāyakaṃ trilocanam||kālakālamambujākṣamakṣaśūlamakṣaraṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+        meaning:"I sing praise of Kalabhairava, the lord of Kashi, who is resplendent like millions of Suns, who absolves the ocean of cycle of rebirth, who is supreme, who has a blue neck, who fulfils one’s desires, who has three-eyes, who is the death of death, who has lotus-like eyes, whose trident supports the world and who is immortal."
+      },
     ],
   },
 };

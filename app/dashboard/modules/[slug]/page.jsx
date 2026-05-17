@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useRef, use } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,10 @@ import {
   RotateCcw,
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
+  FileText,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
@@ -29,15 +34,18 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
   const [hasAccess, setHasAccess] = useState(false);
   const [isScreenSecure, setIsScreenSecure] = useState(true);
 
+  // Active sub-tab state under video player ("lyrics" or "meaning")
+  const [activeTab, setActiveTab] = useState("lyrics");
+  // Mobile content view toggle for lyrics/meaning text blocks
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const videoRef = useRef(null);
   const playerRef = useRef(null);
 
-  // Normalize URL parameters to handle %20 empty spaces elegantly
   const normalizedSlug = slug
     ? decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, "-")
     : "";
 
-  // 1. Resolve active course profile out of the data manifest map
   useEffect(() => {
     if (normalizedSlug && VIDEO_MANIFEST[normalizedSlug]) {
       const manifestProfile = VIDEO_MANIFEST[normalizedSlug];
@@ -46,7 +54,11 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     }
   }, [normalizedSlug]);
 
-  // 2. Access control verification layer via Secure Internal Proxy Route
+  // Reset tab selection expansion state on video swap to prevent height flashing
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [activeVideo]);
+
   useEffect(() => {
     const verifyEnrollmentAccess = async () => {
       if (status === "unauthenticated") {
@@ -89,7 +101,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     verifyEnrollmentAccess();
   }, [status, session, courseData, router]);
 
-  // 3. FRONTEND DETERRENCE AND BLUR CONTROLS
   useEffect(() => {
     const handleWindowBlur = () => setIsScreenSecure(false);
     const handleWindowFocus = () => setIsScreenSecure(true);
@@ -122,10 +133,8 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     };
   }, []);
 
-  // 4. SECURE HARDWARE-LINKED VIDEO.JS INGESTION INITIALIZER
   useEffect(() => {
     if (isReady && activeVideo && videoRef.current) {
-      // Create Video.js instance configuration layout
       playerRef.current = videojs(videoRef.current, {
         autoplay: true,
         controls: true,
@@ -139,7 +148,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
         ],
         html5: {
           vhs: { overrideNative: true },
-          // Hooking directly into EME browser configurations for DRM Blackout playback rules
           eme: {
             keySystems: {
               "com.google.widevine.alpha":
@@ -154,7 +162,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
       });
     }
 
-    // Clean up video instance node memory spaces on video swap or page unmount
     return () => {
       if (playerRef.current) {
         playerRef.current.dispose();
@@ -232,6 +239,19 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     );
   }
 
+  // Format sloka delimiters into natural line breaks safely
+  const renderFormattedText = (textString) => {
+    if (!textString) return null;
+    return textString.split("||").map((line, idx) => {
+      if (!line.trim()) return null;
+      return (
+        <span key={idx} className="block mb-2 last:mb-0">
+          {line.trim()} {idx % 2 === 1 ? "॥" : "।"}
+        </span>
+      );
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0909] text-[#e5e7eb] pb-10 select-none">
       <header className="border-b border-zinc-900 bg-[#0a0909]/80 backdrop-blur-md sticky top-0 z-50">
@@ -251,7 +271,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
             </h1>
             <p className="text-[9px] text-zinc-600 tracking-widest uppercase mt-1">
               Powered by{" "}
-              <span className="text-[#D4A017] text-[#D4A017] font-bold">
+              <span className="text-[#D4A017] font-bold">
                 {courseData?.poweredBy}
               </span>
             </p>
@@ -264,18 +284,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
         <div className="lg:col-span-2 space-y-6">
           {/* VIDEO MAIN PLAYER BLOCK */}
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
-            {/* INVISIBLE SECURITY EMAIL WATERMARK GRID OVERLAY */}
-            {/* <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden opacity-[0.03] text-white flex flex-wrap gap-12 p-4 text-[11px] font-mono select-none">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <span
-                  key={i}
-                  className="transform rotate-[-15deg] whitespace-nowrap"
-                >
-                  {session?.user?.email}
-                </span>
-              ))}
-            </div> */}
-
             {/* AUTOMATED TAB FOCUS LOSS BLUR MASK */}
             {!isScreenSecure && (
               <div className="absolute inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-4">
@@ -300,7 +308,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
                   className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity group-hover:opacity-40"
                 />
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-[#D4A017] rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(255,84,0,0.4)]">
+                  <div className="w-16 h-16 bg-[#D4A017] rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(212,160,23,0.4)]">
                     <Play fill="white" className="text-white ml-1" />
                   </div>
                   <p className="text-xs font-bold uppercase tracking-widest text-white">
@@ -326,6 +334,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
             )}
           </div>
 
+          {/* METADATA SUMMARY BAR */}
           <div className="p-4 bg-[#141313] rounded-xl border border-zinc-900 flex justify-between items-center">
             <div>
               <h2 className="text-lg font-bold text-white mb-0.5">
@@ -341,8 +350,89 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
               <RotateCcw size={16} />
             </button>
           </div>
+
+          {/* DYNAMIC TEXT TABS CONTAINER (LYRICS & MEANINGS) */}
+          {(activeVideo?.lyrics || activeVideo?.meaning) && (
+            <div className="bg-[#141313] border border-zinc-900 rounded-2xl overflow-hidden shadow-xl">
+              {/* TAB TOGGLE SELECTORS */}
+              <div className="flex border-b border-zinc-900 bg-[#0d0c0c] px-2">
+                {activeVideo.lyrics && (
+                  <button
+                    onClick={() => setActiveTab("lyrics")}
+                    className={`flex items-center gap-2 px-5 py-4 text-xs font-bold uppercase tracking-widest transition-all relative border-none bg-transparent cursor-pointer ${
+                      activeTab === "lyrics"
+                        ? "text-[#D4A017]"
+                        : "text-zinc-500 hover:text-zinc-300"
+                    }`}
+                  >
+                    <FileText size={14} />
+                    Lyrics
+                    {activeTab === "lyrics" && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D4A017]" />
+                    )}
+                  </button>
+                )}
+                {activeVideo.meaning && (
+                  <button
+                    onClick={() => setActiveTab("meaning")}
+                    className={`flex items-center gap-2 px-5 py-4 text-xs font-bold uppercase tracking-widest transition-all relative border-none bg-transparent cursor-pointer ${
+                      activeTab === "meaning"
+                        ? "text-[#D4A017]"
+                        : "text-zinc-500 hover:text-zinc-300"
+                    }`}
+                  >
+                    <BookOpen size={14} />
+                    Meaning
+                    {activeTab === "meaning" && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D4A017]" />
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* CONTENT WRAPPER WINDOW */}
+              <div className="p-6 relative">
+                <div
+                  className={`transition-all duration-300 ease-in-out ${
+                    !isExpanded
+                      ? "max-md:line-clamp-3 max-md:overflow-hidden"
+                      : ""
+                  }`}
+                >
+                  {activeTab === "lyrics" ? (
+                    <div className="text-base md:text-lg text-zinc-200 font-medium tracking-wide font-serif text-center md:text-left leading-relaxed">
+                      {renderFormattedText(activeVideo.lyrics)}
+                    </div>
+                  ) : (
+                    <div className="text-sm md:text-base text-zinc-400 font-normal leading-relaxed italic text-zinc-300">
+                      {activeVideo.meaning}
+                    </div>
+                  )}
+                </div>
+
+                {/* MOBILE LINE TRUNCATION READ MORE BUTTON CONTROL */}
+                <div className="md:hidden mt-4 pt-2 border-t border-zinc-900 flex justify-end">
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#D4A017] bg-transparent border-none cursor-pointer"
+                  >
+                    {isExpanded ? (
+                      <>
+                        Collapse <ChevronUp size={12} />
+                      </>
+                    ) : (
+                      <>
+                        Read More <ChevronDown size={12} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* SIDEBAR RIGHT CONTAINER: LECTURE PLAYLIST PANEL */}
         <div className="space-y-4">
           <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest px-1">
             Course Modules
@@ -355,9 +445,9 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
                   setActiveVideo(video);
                   setIsReady(true);
                 }}
-                className={`flex items-center p-3 rounded-xl border transition-all cursor-pointer ${
+                className={`flex items-center p-3 rounded-xl border transition-all cursor-pointer border-solid text-left w-full ${
                   activeVideo?.url === video.url
-                    ? "bg-orange-500/10 border-orange-500/50 text-[#D4A017]"
+                    ? "bg-[#D4A017]/10 border-[#D4A017]/50 text-[#D4A017]"
                     : "bg-[#141313] border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:bg-[#1a1919]"
                 }`}
               >
@@ -368,18 +458,20 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
                     className="object-cover w-full h-full"
                   />
                   {activeVideo?.url === video.url && (
-                    <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-[#D4A017]/20 flex items-center justify-center">
                       <Play size={12} fill="currentColor" />
                     </div>
                   )}
                 </div>
-                <div className="flex-1 text-left min-w-0">
+                <div className="flex-1 min-w-0">
                   <p
                     className={`text-sm font-semibold truncate ${activeVideo?.url === video.url ? "text-white" : ""}`}
                   >
                     {video.title}
                   </p>
-                  <p className="text-[10px] text-zinc-600 uppercase">Module</p>
+                  <p className="text-[10px] text-zinc-600 uppercase mt-0.5">
+                    Module
+                  </p>
                 </div>
                 <ChevronRight
                   size={16}
