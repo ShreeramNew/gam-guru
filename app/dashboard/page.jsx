@@ -20,18 +20,16 @@ export default function Loading() {
     if (!session) {
       return router.push("/dashboard/login");
     }
+
     const verifyUserAccess = async () => {
-      // Only run if the user is successfully logged in with Google
       if (status === "authenticated" && session?.user?.email) {
         try {
-          const response = await fetch(
-            "http://16.171.143.163:5000/api/users/check-auth",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: session.user.email }),
-            },
-          );
+          // CALL THE NEW INTERNAL PROXY ROUTE (It naturally has HTTPS)
+          const response = await fetch("/api/verify-auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: session.user.email }),
+          });
 
           const result = await response.json();
 
