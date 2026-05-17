@@ -207,11 +207,24 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
           <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="text-orange-500 text-2xl">🔒</span>
           </div>
-          <h2 className="text-xl font-black uppercase tracking-wider mb-2">Access Restricted</h2>
+          <h2 className="text-xl font-black uppercase tracking-wider mb-2">
+            Access Restricted
+          </h2>
           <p className="text-sm text-zinc-500 leading-relaxed mb-6">
-            Your profile wrapper (<span className="text-zinc-300 font-semibold">{session?.user?.email}</span>) is not actively enrolled in <span className="text-orange-500 font-bold">{courseData?.title}</span>.
+            Your profile wrapper (
+            <span className="text-zinc-300 font-semibold">
+              {session?.user?.email}
+            </span>
+            ) is not actively enrolled in{" "}
+            <span className="text-orange-500 font-bold">
+              {courseData?.title}
+            </span>
+            .
           </p>
-          <button onClick={() => router.push("/dashboard/modules")} className="w-full py-3.5 bg-orange-600 text-xs font-black uppercase tracking-widest rounded-full hover:bg-orange-500 active:scale-95 transition-all">
+          <button
+            onClick={() => router.push("/dashboard/modules")}
+            className="w-full py-3.5 bg-orange-600 text-xs font-black uppercase tracking-widest rounded-full hover:bg-orange-500 active:scale-95 transition-all"
+          >
             Return to Dashboard
           </button>
         </div>
@@ -230,17 +243,20 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
             >
               <ArrowLeft size={12} /> Dashboard
             </button>
-            <h1 className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter leading-none">
+            <h1
+              style={{ fontFamily: "var(--font-cinzel)" }}
+              className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none"
+            >
               {courseData?.title}
             </h1>
             <p className="text-[9px] text-zinc-600 tracking-widest uppercase mt-1">
               Powered by{" "}
-              <span className="text-[#ff5400] font-bold">
+              <span className="text-[#D4A017] text-[#D4A017] font-bold">
                 {courseData?.poweredBy}
               </span>
             </p>
           </div>
-          <Video className="text-[#ff5400] w-6 h-6 hidden sm:block" />
+          <Video className="text-[#D4A017] w-6 h-6 hidden sm:block" />
         </div>
       </header>
 
@@ -284,7 +300,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
                   className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity group-hover:opacity-40"
                 />
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(255,84,0,0.4)]">
+                  <div className="w-16 h-16 bg-[#D4A017] rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(255,84,0,0.4)]">
                     <Play fill="white" className="text-white ml-1" />
                   </div>
                   <p className="text-xs font-bold uppercase tracking-widest text-white">
@@ -319,7 +335,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
             </div>
             <button
               onClick={() => setIsReady(false)}
-              className="p-2 text-zinc-600 hover:text-[#ff5400] cursor-pointer transition-colors"
+              className="p-2 text-zinc-600 hover:text-[#D4A017] cursor-pointer transition-colors"
               title="Reset Player"
             >
               <RotateCcw size={16} />
@@ -341,7 +357,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
                 }}
                 className={`flex items-center p-3 rounded-xl border transition-all cursor-pointer ${
                   activeVideo?.url === video.url
-                    ? "bg-orange-500/10 border-orange-500/50 text-[#ff5400]"
+                    ? "bg-orange-500/10 border-orange-500/50 text-[#D4A017]"
                     : "bg-[#141313] border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:bg-[#1a1919]"
                 }`}
               >
