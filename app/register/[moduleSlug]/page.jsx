@@ -1,350 +1,539 @@
 "use client";
-
-import React, { useState, useEffect, use } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Crimson_Pro } from "next/font/google";
 import {
-  Play,
-  Video,
-  ChevronRight,
-  RotateCcw,
-  AlertTriangle,
-  ArrowLeft,
+  ChevronLeft,
+  User,
+  Globe,
+  Clock,
+  Search,
+  Check,
+  ChevronDown,
+  Info,
 } from "lucide-react";
-import VIDEO_MANIFEST from "@/app/lib/VideoData";
 
-export default function DynamicVideoModulePage({ params: paramsPromise }) {
-  const params = use(paramsPromise);
-  const slug = params?.slug;
+import { getCountryData } from "../../lib/registration-data";
+import ModulesData from "@/app/lib/ModulesData";
 
-  const router = useRouter();
-  const { data: session, status } = useSession();
+const crimson = Crimson_Pro({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
 
-  const [courseData, setCourseData] = useState(null);
-  const [activeVideo, setActiveVideo] = useState(null);
-  const [isReady, setIsReady] = useState(false);
+const SearchableSelect = ({
+  options = [],
+  value,
+  onChange,
+  placeholder,
+  label,
+  customHeight = "40px",
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef(null);
 
-  const [verificationLoading, setVerificationLoading] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
+  const safeOptions = Array.isArray(options) ? options : [];
+  const filtered = safeOptions.filter((opt) =>
+    opt.label.toLowerCase().includes(search.toLowerCase()),
+  );
 
-  // Anti-Screen Record State
-  const [isScreenSecure, setIsScreenSecure] = useState(true);
-
-  // Normalize URL slug to handle %20 or spaces smoothly
-  const normalizedSlug = slug
-    ? decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, "-")
-    : "";
-
-  // 1. Resolve active course configuration profile out of the manifest map
   useEffect(() => {
-    if (normalizedSlug && VIDEO_MANIFEST[normalizedSlug]) {
-      const manifestProfile = VIDEO_MANIFEST[normalizedSlug];
-      setCourseData(manifestProfile);
-      setActiveVideo(manifestProfile.videos[0]);
-    }
-  }, [normalizedSlug]);
-
-  // 2. Access control routine checking user permissions database footprint via Secure Proxy
-  useEffect(() => {
-    const verifyEnrollmentAccess = async () => {
-      if (status === "unauthenticated") {
-        router.push("/dashboard/login");
-        return;
-      }
-
-      if (status === "authenticated" && session?.user?.email && courseData) {
-        try {
-          const res = await fetch("/api/verify-auth", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: session.user.email }),
-          });
-
-          const data = await res.json();
-
-          if (data.isRegistered) {
-            const cleanModuleTitle = courseData.title.toUpperCase();
-            const allowedModules = (data.accessibleModules || []).map((m) =>
-              m.toUpperCase(),
-            );
-
-            if (allowedModules.includes(cleanModuleTitle)) {
-              setHasAccess(true);
-            } else {
-              setHasAccess(false);
-            }
-          } else {
-            setHasAccess(false);
-          }
-        } catch (err) {
-          console.error("Authorization verification interface failure:", err);
-        } finally {
-          setVerificationLoading(false);
-        }
-      }
+    const clickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target))
+        setIsOpen(false);
     };
-
-    verifyEnrollmentAccess();
-  }, [status, session, courseData, router]);
-
-  // 3. ANTI-SCREEN RECORD & SCREENSHOT PROTECTION LAYER
-  useEffect(() => {
-    // A. Blur screen when user switches tabs, opens an app, or opens snipping/recording bars
-    const handleWindowBlur = () => setIsScreenSecure(false);
-    const handleWindowFocus = () => setIsScreenSecure(true);
-
-    // B. Block right-click context menu (prevents saving video file source directly)
-    const handleContextMenu = (e) => e.preventDefault();
-
-    // C. Block known screenshot & screen-recording keys (PrintScreen, Cmd+Shift+4, Ctrl+P)
-    const handleKeyDown = (e) => {
-      if (
-        e.key === "PrintScreen" ||
-        (e.ctrlKey && e.key === "p") ||
-        (e.metaKey && e.shiftKey && e.key === "4") ||
-        (e.metaKey && e.shiftKey && e.key === "3")
-      ) {
-        e.preventDefault();
-        alert(
-          "Screenshots and recording are restricted on this premium content path.",
-        );
-      }
-    };
-
-    window.addEventListener("blur", handleWindowBlur);
-    window.addEventListener("focus", handleWindowFocus);
-    window.addEventListener("contextmenu", handleContextMenu);
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("blur", handleWindowBlur);
-      window.removeEventListener("focus", handleWindowFocus);
-      window.removeEventListener("contextmenu", handleContextMenu);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    document.addEventListener("mousedown", clickOutside);
+    return () => document.removeEventListener("mousedown", clickOutside);
   }, []);
 
-  if (
-    status === "loading" ||
-    (verificationLoading && !hasAccess && courseData)
-  ) {
-    return (
-      <div className="min-h-screen bg-[#0a0909] flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
-        <p className="text-zinc-500 text-xs uppercase tracking-widest mt-4">
-          Verifying Sacred Seal...
-        </p>
-      </div>
-    );
-  }
-
-  if (!VIDEO_MANIFEST[normalizedSlug]) {
-    return (
-      <div className="min-h-screen bg-[#0a0909] flex items-center justify-center p-6 text-white">
-        <div className="text-center max-w-sm">
-          <AlertTriangle className="text-orange-500 mx-auto mb-4" size={48} />
-          <h2 className="text-lg font-bold mb-2 uppercase tracking-wide">
-            Module Not Found
-          </h2>
-          <p className="text-sm text-zinc-500 mb-6">
-            The requested pathway does not exist within our current course
-            configurations.
-          </p>
-          <button
-            onClick={() => router.push("/dashboard/modules")}
-            className="px-6 py-2.5 bg-zinc-900 border border-zinc-800 text-xs font-bold uppercase rounded-full hover:bg-zinc-800 transition-all flex items-center gap-2 mx-auto"
-          >
-            <ArrowLeft size={14} /> Back to Modules
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!hasAccess && !verificationLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0909] flex items-center justify-center p-6 text-white">
-        <div className="text-center max-w-md bg-[#111] border border-zinc-900 p-8 rounded-3xl shadow-2xl">
-          <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-orange-500 text-2xl">🔒</span>
-          </div>
-          <h2 className="text-xl font-black uppercase tracking-wider mb-2">
-            Access Restricted
-          </h2>
-          <p className="text-sm text-zinc-500 leading-relaxed mb-6">
-            Your profile wrapper (
-            <span className="text-zinc-300 font-semibold">
-              {session?.user?.email}
-            </span>
-            ) is not actively enrolled in{" "}
-            <span className="text-orange-500 font-bold">
-              {courseData?.title}
-            </span>
-            .
-          </p>
-          <button
-            onClick={() => router.push("/dashboard/modules")}
-            className="w-full py-3.5 bg-orange-600 text-xs font-black uppercase tracking-widest rounded-full hover:bg-orange-500 active:scale-95 transition-all"
-          >
-            Return to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#0a0909] text-[#e5e7eb] pb-10 select-none">
-      <header className="border-b border-zinc-900 bg-[#0a0909]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div>
-            <button
-              onClick={() => router.push("/dashboard/modules")}
-              className="flex items-center gap-2 text-xs text-zinc-500 hover:text-orange-500 transition-colors uppercase tracking-widest mb-1 font-semibold bg-transparent border-none cursor-pointer"
-            >
-              <ArrowLeft size={12} /> Dashboard
-            </button>
-            <h1 className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter leading-none">
-              {courseData?.title}
-            </h1>
-            <p className="text-[9px] text-zinc-600 tracking-widest uppercase mt-1">
-              Powered by{" "}
-              <span className="text-[#ff5400] font-bold">
-                {courseData?.poweredBy}
-              </span>
-            </p>
-          </div>
-          <Video className="text-[#ff5400] w-6 h-6 hidden sm:block" />
-        </div>
-      </header>
+    <div className="space-y-1 relative" ref={containerRef}>
+      <label className="text-[10px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+        {label}
+      </label>
+      <div
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setSearch("");
+        }}
+        className="w-full bg-white border border-[#5C3A1E]/20 rounded-lg text-[#5C3A1E] font-bold text-sm cursor-pointer flex justify-between items-center px-3 shadow-sm hover:border-[#E8720C] transition-all"
+        style={{ height: customHeight }}
+      >
+        <span
+          className={`truncate ${value ? "text-[#5C3A1E]" : "text-[#5C3A1E]/30"}`}
+        >
+          {value
+            ? safeOptions.find((o) => o.value === value)?.label
+            : placeholder}
+        </span>
+        <ChevronDown
+          size={12}
+          className={`flex-shrink-0 transition-transform opacity-30 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </div>
 
-      <main className="max-w-7xl mx-auto px-6 pt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          {/* VIDEO CONTAINER CONTAINER */}
-          <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
-            {/* INVISIBLE DYNAMIC EMAIL WATERMARK OVERLAY (Deters External Camera Recording) */}
-            <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden opacity-[0.04] text-white flex flex-wrap gap-12 p-4 text-[11px] font-mono select-none">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <span
-                  key={i}
-                  className="transform rotate-[-15deg] whitespace-nowrap"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="absolute z-[110] w-full mt-1 bg-white border border-[#5C3A1E]/15 shadow-2xl rounded-xl overflow-hidden"
+          >
+            <div className="p-2 border-b border-[#5C3A1E]/5 flex items-center gap-2 bg-[#FDF6E3]/50">
+              <Search size={14} className="text-[#5C3A1E]/20" />
+              <input
+                autoFocus
+                placeholder="Search..."
+                className="bg-transparent border-none outline-none text-xs w-full font-bold text-[#5C3A1E] placeholder:text-[#5C3A1E]/20"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="max-h-48 overflow-y-auto bg-white">
+              {filtered.map((opt, i) => (
+                <div
+                  key={`${opt.value}-${i}`}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                    setSearch("");
+                  }}
+                  className="px-4 py-2.5 text-xs hover:bg-[#E8720C]/10 cursor-pointer flex justify-between items-center text-[#5C3A1E] font-bold"
                 >
-                  {session?.user?.email}
-                </span>
-              ))}
-            </div>
-
-            {/* FOCUS-LOSS BLUR BLANKET */}
-            {!isScreenSecure && (
-              <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center text-center p-4">
-                <p className="text-orange-500 text-sm font-bold uppercase tracking-widest mb-1">
-                  Playback Paused
-                </p>
-                <p className="text-zinc-500 text-xs">
-                  Return focus to the browser tab to continue tracking videos.
-                </p>
-              </div>
-            )}
-
-            {!isReady && activeVideo && (
-              <div
-                className="absolute inset-0 z-30 bg-black flex flex-col items-center justify-center cursor-pointer"
-                onClick={() => setIsReady(true)}
-              >
-                <img
-                  src={activeVideo.thumbnail}
-                  alt={activeVideo.title}
-                  className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity group-hover:opacity-40"
-                />
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-[#ff5400] rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(255,84,0,0.4)]">
-                    <Play fill="white" className="text-white ml-1" />
-                  </div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-white">
-                    Tap to Start Learning
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {isReady && activeVideo && (
-              <video
-                key={activeVideo.url}
-                controls
-                autoPlay
-                controlsList="nodownload noremoteplayback"
-                disablePictureInPicture
-                className="absolute inset-0 w-full h-full z-10"
-              >
-                <source src={activeVideo.url} type="video/mp4" />
-              </video>
-            )}
-          </div>
-
-          <div className="p-4 bg-[#141313] rounded-xl border border-zinc-900 flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-bold text-white mb-0.5">
-                {activeVideo?.title}
-              </h2>
-              <p className="text-xs text-zinc-500">Self Learning Module</p>
-            </div>
-            <button
-              onClick={() => setIsReady(false)}
-              className="p-2 text-zinc-600 hover:text-[#ff5400] cursor-pointer transition-colors"
-              title="Reset Player"
-            >
-              <RotateCcw size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest px-1">
-            Course Modules
-          </h3>
-          <div className="grid grid-cols-1 gap-3 max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
-            {courseData?.videos.map((video) => (
-              <button
-                key={video.url}
-                onClick={() => {
-                  setActiveVideo(video);
-                  setIsReady(true);
-                }}
-                className={`flex items-center p-3 rounded-xl border transition-all cursor-pointer ${
-                  activeVideo?.url === video.url
-                    ? "bg-orange-500/10 border-orange-500/50 text-[#ff5400]"
-                    : "bg-[#141313] border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:bg-[#1a1919]"
-                }`}
-              >
-                <div className="mr-4 h-12 w-20 bg-zinc-900 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative border border-zinc-800">
-                  <img
-                    src={video.thumbnail}
-                    alt=""
-                    className="object-cover w-full h-full"
-                  />
-                  {activeVideo?.url === video.url && (
-                    <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center">
-                      <Play size={12} fill="currentColor" />
-                    </div>
+                  <span className="truncate pr-4 text-sm">{opt.label}</span>
+                  {value === opt.value && (
+                    <Check size={14} className="text-[#E8720C]" />
                   )}
                 </div>
-                <div className="flex-1 text-left min-w-0">
-                  <p
-                    className={`text-sm font-semibold truncate ${activeVideo?.url === video.url ? "text-white" : ""}`}
-                  >
-                    {video.title}
-                  </p>
-                  <p className="text-[10px] text-zinc-600 uppercase">Module</p>
-                </div>
-                <ChevronRight
-                  size={16}
-                  className={`ml-auto transition-transform ${activeVideo?.url === video.url ? "opacity-100 translate-x-1" : "opacity-0"}`}
-                />
-              </button>
-            ))}
-          </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default function RegistrationPage() {
+  const router = useRouter();
+  const { moduleSlug } = useParams();
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState({
+    countries: [],
+    timezones: [],
+    phoneCodes: [],
+  });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isIndianIP, setIsIndianIP] = useState(true); // Default to India, updated on mount
+
+  const [selectedTz, setSelectedTz] = useState("");
+  const [selectedStartSlot, setSelectedStartSlot] = useState("");
+  const [selectedEndSlot, setSelectedEndSlot] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedCode, setSelectedCode] = useState("+91");
+  const [customAmount, setCustomAmount] = useState(0);
+
+  const FIELD_HEIGHT = "42px";
+
+  const activeModule = useMemo(() => {
+    return ModulesData.find(
+      (m) => m.title.toLowerCase().replace(/ /g, "-") === moduleSlug,
+    );
+  }, [moduleSlug]);
+
+  const moduleTitle = activeModule?.title || "MODULE";
+  const isKalaBhairava = moduleSlug === "kala-bhairava-ashtakam";
+
+  useEffect(() => {
+    setData(getCountryData());
+    // AUTO-DETECT LOCATION via public API
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        const inIndia = data.country_code === "IN";
+        setIsIndianIP(inIndia);
+        if (inIndia) {
+          setSelectedCountry("India");
+          setSelectedCode("+91");
+        }
+      })
+      .catch(() => setIsIndianIP(true)); // Fallback to India on error
+  }, []);
+
+  // Determine Currency/Symbol (Priority: Dropdown Selection > IP Detection)
+  const isIndia = selectedCountry ? selectedCountry === "India" : isIndianIP;
+  const currency = isIndia ? "INR" : "USD";
+  const symbol = isIndia ? "₹" : "$";
+
+  const displayPrice = useMemo(() => {
+    // if (isKalaBhairava) return Number(customAmount) || 0;
+    if (!activeModule) return 0;
+    return isIndia ? activeModule.price.current : activeModule.dPrice.current;
+  }, [isIndia, activeModule, isKalaBhairava, customAmount]);
+
+  const formatSession = (date, tzValue) => {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: tzValue,
+      month: "short",
+      day: "numeric",
+      weekday: "short",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    const tzEntry = data.timezones.find((t) => t.value === tzValue);
+    const tzName = tzEntry
+      ? tzEntry.label.match(/\(([^)]+)\)/)?.[1] || "Local"
+      : "Local";
+    const parts = formatter.formatToParts(date);
+    const getPart = (type) => parts.find((p) => p.type === type).value;
+    const timeStr = `${getPart("hour")}:${getPart("minute")}${getPart("dayPeriod").toLowerCase()}`;
+    return `${getPart("month")} ${getPart("day")}, ${getPart("weekday")} ${timeStr} (${tzName})`;
+  };
+
+  const startOptions = useMemo(() => {
+    if (!selectedTz || !data.timezones.length) return [];
+    const startDate = new Date("2026-05-17T15:30:00Z");
+    const formatted = formatSession(startDate, selectedTz);
+    return [{ value: formatted, label: formatted }];
+  }, [selectedTz, data.timezones]);
+
+  const endOptions = useMemo(() => {
+    if (!selectedTz || !data.timezones.length) return [];
+    const endDate = new Date("2026-05-24T01:30:00Z");
+    const formatted = formatSession(endDate, selectedTz);
+    return [{ value: formatted, label: formatted }];
+  }, [selectedTz, data.timezones]);
+
+  const handleEnrollment = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.target);
+    const details = Object.fromEntries(formData);
+
+    const finalPayload = {
+      ...details,
+      country: selectedCountry || (isIndianIP ? "India" : "Other"),
+      countryCode: selectedCode,
+      timezone: selectedTz,
+      startSession: selectedStartSlot,
+      endSession: selectedEndSlot,
+      moduleTitle,
+      amountPaid: displayPrice,
+      currency,
+      status: "active",
+    };
+
+    if (displayPrice === 0) {
+      const result = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...finalPayload,
+          razorpay_payment_id: "FREE_LAUNCH_ENROLL",
+        }),
+      });
+      if (result.ok) setShowSuccess(true);
+      setLoading(false);
+      return;
+    }
+
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: displayPrice * 100,
+      currency: currency,
+      name: "Sanatan After School",
+      description: moduleTitle,
+      handler: async (res) => {
+        const result = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...finalPayload, ...res }),
+        });
+        if (result.ok) setShowSuccess(true);
+      },
+      prefill: { email: details.email, contact: details.phone },
+      theme: { color: "#E8720C" },
+      modal: { ondismiss: () => setLoading(false) },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
+  return (
+    <div className="min-h-screen py-6 px-6 bg-[#FFFBF2]">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-6">
+          <p className="text-[10px] font-black text-[#D4A017] tracking-widest uppercase mb-1">
+            Step 1 of 2
+          </p>
+          <h1
+            className="text-2xl font-black text-[#5C3A1E] uppercase leading-tight"
+            style={{ fontFamily: "var(--font-cinzel)" }}
+          >
+            Course <span className="text-[#E8720C]">Enrollment</span>
+          </h1>
         </div>
-      </main>
+
+        <form
+          onSubmit={handleEnrollment}
+          className="bg-white rounded-3xl p-6 md:p-8 border border-[#5C3A1E]/10 space-y-7 shadow-xl shadow-[#5C3A1E]/5"
+        >
+          {/* IDENTITY DETAILS */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#5C3A1E]/5">
+              <User size={14} className="text-[#E8720C]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
+                Identity Details
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                required
+                name="firstName"
+                placeholder="First Name"
+                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                style={{ height: FIELD_HEIGHT }}
+              />
+              <input
+                required
+                name="lastName"
+                placeholder="Last Name"
+                className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                style={{ height: FIELD_HEIGHT }}
+              />
+              <input
+                required
+                name="email"
+                type="email"
+                placeholder="Email Address"
+                className="md:col-span-2 w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                style={{ height: FIELD_HEIGHT }}
+              />
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  Age
+                </label>
+                <input
+                  required
+                  name="age"
+                  type="number"
+                  placeholder="Age"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                  style={{ height: FIELD_HEIGHT }}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  Gender
+                </label>
+                <select
+                  required
+                  name="gender"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-3 outline-none cursor-pointer"
+                  style={{ height: FIELD_HEIGHT }}
+                >
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          {/* SCHEDULE SECTION */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#5C3A1E]/5">
+              <Clock size={14} className="text-[#E8720C]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
+                Mandatory Live Session
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-5">
+              <SearchableSelect
+                label="1. Time Zone"
+                options={data.timezones}
+                value={selectedTz}
+                onChange={setSelectedTz}
+                placeholder="Search timezone..."
+                customHeight={FIELD_HEIGHT}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SearchableSelect
+                  label="2. Start Session"
+                  options={startOptions}
+                  value={selectedStartSlot}
+                  onChange={setSelectedStartSlot}
+                  placeholder="Start slot"
+                  customHeight={FIELD_HEIGHT}
+                />
+                <SearchableSelect
+                  label="3. Ending Session"
+                  options={endOptions}
+                  value={selectedEndSlot}
+                  onChange={setSelectedEndSlot}
+                  placeholder="End slot"
+                  customHeight={FIELD_HEIGHT}
+                />
+              </div>
+            </div>
+            <div
+              className={`${crimson.className} text-gray-700 text-[15px] ml-[10px] leading-relaxed`}
+            >
+              <p className="font-bold text-[#5C3A1E]">Important Note:</p>
+              <ul className="ml-[10px] space-y-1.5 opacity-80">
+                <li>
+                  • During the week, you will be going through the pre-recorded
+                  learning modules at your convenient time.
+                </li>
+                <li>
+                  • Practice corrections support by Our Expert Teachers and
+                  WhatsApp group support will be available throughout the week.
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          {/* GEOGRAPHY & CONTACT */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#5C3A1E]/5">
+              <Globe size={14} className="text-[#E8720C]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#D4A017]">
+                Professional & Contact
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+              <SearchableSelect
+                label="Country"
+                options={data.countries}
+                value={selectedCountry}
+                onChange={setSelectedCountry}
+                placeholder="Search country..."
+                customHeight={FIELD_HEIGHT}
+              />
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  Occupation
+                </label>
+                <input
+                  required
+                  name="occupation"
+                  placeholder="Occupation"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                  style={{ height: FIELD_HEIGHT }}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                  City
+                </label>
+                <input
+                  required
+                  name="city"
+                  placeholder="City"
+                  className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                  style={{ height: FIELD_HEIGHT }}
+                />
+              </div>
+              <div className="flex gap-2">
+                <div className="w-[110px]">
+                  <SearchableSelect
+                    label="Code"
+                    options={data.phoneCodes}
+                    value={selectedCode}
+                    onChange={setSelectedCode}
+                    placeholder="+91"
+                    customHeight={FIELD_HEIGHT}
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <label className="text-[10px] font-black text-[#5C3A1E]/50 uppercase tracking-widest ml-1">
+                    Phone Number
+                  </label>
+                  <input
+                    required
+                    name="phone"
+                    type="tel"
+                    placeholder="Mobile Number"
+                    className="w-full bg-white border border-[#5C3A1E]/15 rounded-lg font-bold text-sm text-[#5C3A1E] px-4 outline-none placeholder:text-[#5C3A1E]/30"
+                    style={{ height: FIELD_HEIGHT }}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+        
+
+          <button
+            disabled={loading}
+            className="w-full py-4 bg-[#E8720C] text-white font-black rounded-full shadow-lg shadow-[#E8720C]/20 hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-[11px] cursor-pointer"
+          >
+            {loading
+              ? "Processing..."
+              : `Pay ${symbol}${displayPrice} to Enroll`}
+          </button>
+        </form>
+
+        <button
+          onClick={() => router.back()}
+          className="mt-8 mx-auto flex items-center gap-2 text-[#5C3A1E]/30 hover:text-[#E8720C] transition-colors text-[11px] font-black uppercase tracking-widest cursor-pointer"
+        >
+          <ChevronLeft size={14} /> Back
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/70 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check size={36} className="text-green-600" strokeWidth={3} />
+              </div>
+              <h3
+                className="text-2xl font-black text-[#5C3A1E] uppercase mb-4"
+                style={{ fontFamily: "var(--font-cinzel)" }}
+              >
+                Enrollment Success
+              </h3>
+              <p
+                className={`${crimson.className} text-[#5C3A1E]/60 italic text-center mb-8 text-[16px]`}
+              >
+                For General Updates about Shlokabhyasa, Join Our <br />
+                <a
+                  href="https://chat.whatsapp.com/DuuEfGYCb0QG6ttknLbrLC"
+                  className=" text-[#055bc5]"
+                >
+                  Whatsapp Group
+                </a>
+              </p>
+              <button
+                onClick={() => {
+                  router.push("/");
+                  setShowSuccess(false);
+                }}
+                className="w-full py-4 bg-[#5C3A1E] text-white font-black rounded-full uppercase tracking-widest text-[11px] cursor-pointer"
+              >
+                Go to Home
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
     </div>
   );
 }

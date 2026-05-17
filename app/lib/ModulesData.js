@@ -5,8 +5,8 @@ const ModulesData = [
     description: "Connect with the divine guardian of time and protection.",
     ageLimit: "16+",
     sessionCount: "2 Live + 8 Pre-recorded",
-    price: { original: 1500, current: 0 },
-    dPrice: { original: 45, current: 0 }, // Adjusted to 0 to match the free launch offer
+    price: { original: 1500, current: 999 },
+    dPrice: { original: 45, current: 25 }, // Adjusted to 0 to match the free launch offer
     status: "active",
     batchLabel: true,
     blurPrice: false,
