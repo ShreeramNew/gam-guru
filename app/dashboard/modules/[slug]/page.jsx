@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -11,11 +10,11 @@ import {
   AlertTriangle,
   ArrowLeft,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
 import VIDEO_MANIFEST from "@/app/lib/VideoData";
 
 export default function DynamicVideoModulePage({ params: paramsPromise }) {
-  // Safe extraction of route parameters in Next.js 15+ environments
   const params = use(paramsPromise);
   const slug = params?.slug;
 
@@ -28,26 +27,26 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
 
   const [verificationLoading, setVerificationLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [isScreenSecure, setIsScreenSecure] = useState(true);
 
-  // 1. Resolve active course configuration profile out of the manifest map
+  const videoRef = useRef(null);
+  const playerRef = useRef(null);
+
+  // Normalize URL parameters to handle %20 empty spaces elegantly
+  const normalizedSlug = slug
+    ? decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, "-")
+    : "";
+
+  // 1. Resolve active course profile out of the data manifest map
   useEffect(() => {
-    if (slug) {
-      // FIX: Converts "kala%20bhairava%20ashtakam" or "Kala Bhairava" into "kala-bhairava-ashtakam"
-      const normalizedSlug = decodeURIComponent(slug)
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, "-");
-
-      console.log("Looking up normalized slug identifier:", normalizedSlug);
-
-      if (VIDEO_MANIFEST[normalizedSlug]) {
-        const manifestProfile = VIDEO_MANIFEST[normalizedSlug];
-        setCourseData(manifestProfile);
-        setActiveVideo(manifestProfile.videos[0]);
-      }
+    if (normalizedSlug && VIDEO_MANIFEST[normalizedSlug]) {
+      const manifestProfile = VIDEO_MANIFEST[normalizedSlug];
+      setCourseData(manifestProfile);
+      setActiveVideo(manifestProfile.videos[0]);
     }
-  }, [slug]);
-  // 2. Access control routine checking user permissions database footprint via Secure Proxy
+  }, [normalizedSlug]);
+
+  // 2. Access control verification layer via Secure Internal Proxy Route
   useEffect(() => {
     const verifyEnrollmentAccess = async () => {
       if (status === "unauthenticated") {
@@ -66,7 +65,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
           const data = await res.json();
 
           if (data.isRegistered) {
-            // Match permissions matching the dynamic course canonical title format mapping
             const cleanModuleTitle = courseData.title.toUpperCase();
             const allowedModules = (data.accessibleModules || []).map((m) =>
               m.toUpperCase(),
@@ -81,7 +79,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
             setHasAccess(false);
           }
         } catch (err) {
-          console.error("Authorization verification interface failure:", err);
+          console.error("Authorization verification failure:", err);
         } finally {
           setVerificationLoading(false);
         }
@@ -91,7 +89,80 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     verifyEnrollmentAccess();
   }, [status, session, courseData, router]);
 
-  // Handle Global State Loading Screen Interstitial
+  // 3. FRONTEND DETERRENCE AND BLUR CONTROLS
+  useEffect(() => {
+    const handleWindowBlur = () => setIsScreenSecure(false);
+    const handleWindowFocus = () => setIsScreenSecure(true);
+    const handleContextMenu = (e) => e.preventDefault();
+
+    const handleKeyDown = (e) => {
+      if (
+        e.key === "PrintScreen" ||
+        (e.ctrlKey && e.key === "p") ||
+        (e.metaKey && e.shiftKey && e.key === "4") ||
+        (e.metaKey && e.shiftKey && e.key === "3")
+      ) {
+        e.preventDefault();
+        alert(
+          "Screenshots and recording are restricted on this premium content path.",
+        );
+      }
+    };
+
+    window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("focus", handleWindowFocus);
+    window.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("blur", handleWindowBlur);
+      window.removeEventListener("focus", handleWindowFocus);
+      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // 4. SECURE HARDWARE-LINKED VIDEO.JS INGESTION INITIALIZER
+  useEffect(() => {
+    if (isReady && activeVideo && videoRef.current) {
+      // Create Video.js instance configuration layout
+      playerRef.current = videojs(videoRef.current, {
+        autoplay: true,
+        controls: true,
+        responsive: true,
+        fluid: true,
+        sources: [
+          {
+            src: activeVideo.url,
+            type: activeVideo.type || "video/mp4",
+          },
+        ],
+        html5: {
+          vhs: { overrideNative: true },
+          // Hooking directly into EME browser configurations for DRM Blackout playback rules
+          eme: {
+            keySystems: {
+              "com.google.widevine.alpha":
+                "https://your-drm-license-server.com/widevine",
+              "com.apple.fps.1_0":
+                "https://your-drm-license-server.com/fairplay",
+            },
+          },
+        },
+        userActions: { hotkeys: false },
+        controlBar: { pictureInPictureToggle: false },
+      });
+    }
+
+    // Clean up video instance node memory spaces on video swap or page unmount
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
+    };
+  }, [isReady, activeVideo]);
+
   if (
     status === "loading" ||
     (verificationLoading && !hasAccess && courseData)
@@ -106,13 +177,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     );
   }
 
-  // Handle Invalid Module Target URL Boundaries
-  if (
-    slug &&
-    !VIDEO_MANIFEST[
-      decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, "-")
-    ]
-  ) {
+  if (!VIDEO_MANIFEST[normalizedSlug]) {
     return (
       <div className="min-h-screen bg-[#0a0909] flex items-center justify-center p-6 text-white">
         <div className="text-center max-w-sm">
@@ -135,7 +200,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
     );
   }
 
-  // Handle Locked Access Prevention Safeguards
   if (!hasAccess && !verificationLoading) {
     return (
       <div className="min-h-screen bg-[#0a0909] flex items-center justify-center p-6 text-white">
@@ -143,24 +207,11 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
           <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="text-orange-500 text-2xl">🔒</span>
           </div>
-          <h2 className="text-xl font-black uppercase tracking-wider mb-2">
-            Access Restricted
-          </h2>
+          <h2 className="text-xl font-black uppercase tracking-wider mb-2">Access Restricted</h2>
           <p className="text-sm text-zinc-500 leading-relaxed mb-6">
-            Your profile wrapper (
-            <span className="text-zinc-300 font-semibold">
-              {session?.user?.email}
-            </span>
-            ) is not actively enrolled in{" "}
-            <span className="text-orange-500 font-bold">
-              {courseData?.title}
-            </span>
-            .
+            Your profile wrapper (<span className="text-zinc-300 font-semibold">{session?.user?.email}</span>) is not actively enrolled in <span className="text-orange-500 font-bold">{courseData?.title}</span>.
           </p>
-          <button
-            onClick={() => router.push("/dashboard/modules")}
-            className="w-full py-3.5 bg-orange-600 text-xs font-black uppercase tracking-widest rounded-full hover:bg-orange-500 active:scale-95 transition-all cursor-pointer"
-          >
+          <button onClick={() => router.push("/dashboard/modules")} className="w-full py-3.5 bg-orange-600 text-xs font-black uppercase tracking-widest rounded-full hover:bg-orange-500 active:scale-95 transition-all">
             Return to Dashboard
           </button>
         </div>
@@ -169,7 +220,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0909] text-[#e5e7eb] pb-10">
+    <div className="min-h-screen bg-[#0a0909] text-[#e5e7eb] pb-10 select-none">
       <header className="border-b border-zinc-900 bg-[#0a0909]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div>
@@ -195,7 +246,33 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
 
       <main className="max-w-7xl mx-auto px-6 pt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
+          {/* VIDEO MAIN PLAYER BLOCK */}
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
+            {/* INVISIBLE SECURITY EMAIL WATERMARK GRID OVERLAY */}
+            {/* <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden opacity-[0.03] text-white flex flex-wrap gap-12 p-4 text-[11px] font-mono select-none">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="transform rotate-[-15deg] whitespace-nowrap"
+                >
+                  {session?.user?.email}
+                </span>
+              ))}
+            </div> */}
+
+            {/* AUTOMATED TAB FOCUS LOSS BLUR MASK */}
+            {!isScreenSecure && (
+              <div className="absolute inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-4">
+                <p className="text-orange-500 text-sm font-bold uppercase tracking-widest mb-1">
+                  Playback Interrupted
+                </p>
+                <p className="text-zinc-500 text-xs">
+                  Return your active tab focus to the browser window to proceed
+                  learning.
+                </p>
+              </div>
+            )}
+
             {!isReady && activeVideo && (
               <div
                 className="absolute inset-0 z-30 bg-black flex flex-col items-center justify-center cursor-pointer"
@@ -217,15 +294,19 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
               </div>
             )}
 
+            {/* VIDEO.JS NODE DOM ACCESS WRAPPER */}
             {isReady && activeVideo && (
-              <video
-                key={activeVideo.url}
-                controls
-                autoPlay
+              <div
+                data-vjs-player
                 className="absolute inset-0 w-full h-full z-10"
               >
-                <source src={activeVideo.url} type="video/mp4" />
-              </video>
+                <video
+                  ref={videoRef}
+                  className="video-js vjs-big-play-centered w-full h-full"
+                  controlsList="nodownload"
+                  disablePictureInPicture
+                />
+              </div>
             )}
           </div>
 
