@@ -323,20 +323,13 @@ export default function ModuleShowcase() {
               </div>
             </motion.div>
 
-            {/* MOBILE ONLY: Countdown below Kala Bhairava card (assuming it is the first card) */}
-            {idx === 0 && (
-              <div className="md:hidden">
-                <CountdownTimer />
-              </div>
-            )}
+            
           </React.Fragment>
         ))}
       </div>
 
       {/* DESKTOP ONLY: Countdown below all cards */}
-      <div className="hidden md:block max-w-2xl mx-auto">
-        <CountdownTimer />
-      </div>
+  
     </div>
 
       <AnimatePresence>
