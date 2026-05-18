@@ -196,18 +196,19 @@ export default function RegistrationPage() {
 
   const startOptions = useMemo(() => {
     if (!selectedTz || !data.timezones.length) return [];
-    const startDate = new Date("2026-05-17T15:30:00Z");
+    // Shifted from May 17th to May 24th, 2026
+    const startDate = new Date("2026-05-24T15:30:00Z");
     const formatted = formatSession(startDate, selectedTz);
     return [{ value: formatted, label: formatted }];
   }, [selectedTz, data.timezones]);
 
   const endOptions = useMemo(() => {
     if (!selectedTz || !data.timezones.length) return [];
-    const endDate = new Date("2026-05-24T01:30:00Z");
+    // Shifted forward by 7 days to match the original duration window (May 31st, 2026)
+    const endDate = new Date("2026-05-31T01:30:00Z");
     const formatted = formatSession(endDate, selectedTz);
     return [{ value: formatted, label: formatted }];
   }, [selectedTz, data.timezones]);
-
   const handleEnrollment = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -466,8 +467,6 @@ export default function RegistrationPage() {
               </div>
             </div>
           </section>
-
-        
 
           <button
             disabled={loading}
