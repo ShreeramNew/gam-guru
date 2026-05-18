@@ -76,8 +76,20 @@ const VIDEO_MANIFEST = {
         url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day2.mp4",
         type: "video/mp4",
         thumbnail: getThumbnailUrl("KalaBhairava", 2),
-        lyrics:"bhānu koṭi bhāsvaraṃ bhavābdhitārakaṃ paraṃ||nīla kaṇṭhamīpsitārtha dāyakaṃ trilocanam||kālakālamambujākṣamakṣaśūlamakṣaraṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
-        meaning:"I sing praise of Kalabhairava, the lord of Kashi, who is resplendent like millions of Suns, who absolves the ocean of cycle of rebirth, who is supreme, who has a blue neck, who fulfils one’s desires, who has three-eyes, who is the death of death, who has lotus-like eyes, whose trident supports the world and who is immortal."
+        lyrics:
+          "bhānu koṭi bhāsvaraṃ bhavābdhitārakaṃ paraṃ||nīla kaṇṭhamīpsitārtha dāyakaṃ trilocanam||kālakālamambujākṣamakṣaśūlamakṣaraṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who is resplendent like millions of Suns, who absolves the ocean of cycle of rebirth, who is supreme, who has a blue neck, who fulfils one’s desires, who has three-eyes, who is the death of death, who has lotus-like eyes, whose trident supports the world and who is immortal.",
+      },
+      {
+        title: "Kala Bhairava Ashtakam - Stanza 3",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day3.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 3),
+        lyrics:
+          "śūla ṭaṅka pāśa daṇḍa pāṇimādi kāraṇaṃ||śyāma kāyamādi devamakṣaraṃ nirāmayam||bhīmavikramaṃ prabhuṃ vicitra tāṇḍava priyaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who is the bestower of desires and salvation, who has an enticing appearance, who is loving to his devotees, who is stable, who takes various manifestations and forms the world, and who has a beautiful golden belt with small melodious bells.",
       },
     ],
   },

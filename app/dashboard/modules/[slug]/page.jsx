@@ -285,17 +285,7 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
           {/* VIDEO MAIN PLAYER BLOCK */}
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
             {/* AUTOMATED TAB FOCUS LOSS BLUR MASK */}
-            {!isScreenSecure && (
-              <div className="absolute inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-4">
-                <p className="text-orange-500 text-sm font-bold uppercase tracking-widest mb-1">
-                  Playback Interrupted
-                </p>
-                <p className="text-zinc-500 text-xs">
-                  Return your active tab focus to the browser window to proceed
-                  learning.
-                </p>
-              </div>
-            )}
+           
 
             {!isReady && activeVideo && (
               <div
