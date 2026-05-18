@@ -314,7 +314,7 @@ export default function Dashboard() {
                 No Access Found
               </h2>
               <p className="text-sm text-[#5C3A1E]/60 leading-relaxed mb-8">
-                Namaskaram. We couldn't find a paid enrollment associated with{" "}
+                Namaskaram. We couldn't find an enrollment associated with{" "}
                 <span className="font-bold text-[#5C3A1E]">
                   {session?.user?.email}
                 </span>
