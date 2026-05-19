@@ -89,6 +89,16 @@ const VIDEO_MANIFEST = {
         lyrics:
           "śūla ṭaṅka pāśa daṇḍa pāṇimādi kāraṇaṃ||śyāma kāyamādi devamakṣaraṃ nirāmayam||bhīmavikramaṃ prabhuṃ vicitra tāṇḍava priyaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje",
         meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who has a monodent, a spade, a noose and a club in his hands, who is the cause behind the beginning, who has an ash smeared body, Who is the first God, who is imperishable, who is free from illness and health, who is immensely mighty, and who loves the special Tandava dance.",
+      },
+      {
+        title: "Stanza 4-Kala Bhairava Ashtakam",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day4.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 4),
+        lyrics:
+          "bhukti mukti dāyakaṃ praśasta cāru vigrahaṃ||bhakta vatsalaṃ sthitaṃ samasta loka vigraham||vi nikvaṇanmanojña hemakiṅkiṇī lasatkaṭiṃ||kāśikā purādhinātha kālabhairavaṃ bhaje",
+        meaning:
           "I sing praise of Kalabhairava, the lord of Kashi, who is the bestower of desires and salvation, who has an enticing appearance, who is loving to his devotees, who is stable, who takes various manifestations and forms the world, and who has a beautiful golden belt with small melodious bells.",
       },
     ],
