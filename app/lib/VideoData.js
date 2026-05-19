@@ -62,7 +62,7 @@ const VIDEO_MANIFEST = {
     poweredBy: "Gam Guru - Sanatan After School",
     videos: [
       {
-        title: "Kala Bhairava Ashtakam - Stanza 1",
+        title: "Stanza 1-Kala Bhairava Ashtakam",
         url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day1.mp4",
         type: "video/mp4",
         thumbnail: getThumbnailUrl("KalaBhairava", 1),
@@ -72,7 +72,7 @@ const VIDEO_MANIFEST = {
           "I sing praise of Kalabhairava, the lord of Kashi, who is adorned by lotus-feet which is revered and served by Indra (Devaraj), Who wears a snake as a sacred thread, who has the moon on his forehead, who is the abode of mercy, whose praises are sung by Narada and other yogis, and who wears the sky as his raiment",
       },
       {
-        title: "Kala Bhairava Ashtakam - Stanza 2",
+        title: "Stanza 2-Kala Bhairava Ashtakam",
         url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day2.mp4",
         type: "video/mp4",
         thumbnail: getThumbnailUrl("KalaBhairava", 2),
@@ -82,7 +82,7 @@ const VIDEO_MANIFEST = {
           "I sing praise of Kalabhairava, the lord of Kashi, who is resplendent like millions of Suns, who absolves the ocean of cycle of rebirth, who is supreme, who has a blue neck, who fulfils one’s desires, who has three-eyes, who is the death of death, who has lotus-like eyes, whose trident supports the world and who is immortal.",
       },
       {
-        title: "Kala Bhairava Ashtakam - Stanza 3",
+        title: "Stanza 3-Kala Bhairava Ashtakam",
         url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day3.mp4",
         type: "video/mp4",
         thumbnail: getThumbnailUrl("KalaBhairava", 3),
