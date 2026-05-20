@@ -101,6 +101,16 @@ const VIDEO_MANIFEST = {
         meaning:
           "I sing praise of Kalabhairava, the lord of Kashi, who is the bestower of desires and salvation, who has an enticing appearance, who is loving to his devotees, who is stable, who takes various manifestations and forms the world, and who has a beautiful golden belt with small melodious bells.",
       },
+      {
+        title: "Stanza 5-Kala Bhairava Ashtakam",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day5.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 5),
+        lyrics:
+          "dharma setu pālakaṃ tvadharma mārga nāśakaṃ||karma pāśa mocakaṃ su śarma dāyakaṃ vibhum||svarṇa varṇa śeṣa pāśa śobhitāṅga maṇḍalaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who is the maintainer of dharma, who is the destroyer of unrighteous paths, who liberates us from the bonds of Karma or deeds, who is splendid, and whose is adorned with golden snakes. ",
+      },
     ],
   },
 };
