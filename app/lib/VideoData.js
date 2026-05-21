@@ -111,6 +111,16 @@ const VIDEO_MANIFEST = {
         meaning:
           "I sing praise of Kalabhairava, the lord of Kashi, who is the maintainer of dharma, who is the destroyer of unrighteous paths, who liberates us from the bonds of Karma or deeds, who is splendid, and whose is adorned with golden snakes. ",
       },
+      {
+        title: "Stanza 6-Kala Bhairava Ashtakam",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day6.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 6),
+        lyrics:
+          "ratna pādukā prabhābhi rāma pāda yugmakaṃ||nityamadvitīyamiṣṭa daivataṃ nirañjanam||mṛtyu darpa nāśanaṃ karāla daṃṣṭra mokṣaṇaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who has feet adorned by two golden sandals, who has a resplendent shine, who is eternal, who is inimitable, who bestows our desires to us, who is without desires, who destroys the pride of Yama or the God of death, and whose teeth liberate us.",
+      },
     ],
   },
 };
