@@ -121,6 +121,16 @@ const VIDEO_MANIFEST = {
         meaning:
           "I sing praise of Kalabhairava, the lord of Kashi, who has feet adorned by two golden sandals, who has a resplendent shine, who is eternal, who is inimitable, who bestows our desires to us, who is without desires, who destroys the pride of Yama or the God of death, and whose teeth liberate us.",
       },
+      {
+        title: "Stanza 7-Kala Bhairava Ashtakam",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day7.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 7),
+        lyrics:
+          "aṭṭa hāsa bhinna padmajāṇḍa kośa santatiṃ||dṛṣṭi pāta naṣṭa pāpajālamugra śāsanam||aṣṭa siddhi dāyakaṃ kapāla mālikā dharaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, whose loud roar is enough to destroy all the manifestations created by the lotus-born Brahma, whose merciful glance is enough to destroy all sins, who bestows the eight-powers, and who wears a garland of skulls.",
+      },
     ],
   },
 };
