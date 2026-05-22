@@ -127,7 +127,7 @@ const VIDEO_MANIFEST = {
         type: "video/mp4",
         thumbnail: getThumbnailUrl("KalaBhairava", 7),
         lyrics:
-          "aṭṭa hāsa bhinna padmajāṇḍa kośa santatiṃ||dṛṣṭi pāta naṣṭa pāpajālamugra śāsanam||aṣṭa siddhi dāyakaṃ kapāla mālikā dharaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
+          "aṭṭa hāsa bhinna padmajāṇḍa kośa santatiṃ||dṛṣṭi pāta naṣṭa pāpajālamugra śāsanam||aṣṭa siddhi dāyakaṃ kapāla mālikām dharaṃ||kāśikā purādhinātha kālabhairavaṃ bhaje||",
         meaning:
           "I sing praise of Kalabhairava, the lord of Kashi, whose loud roar is enough to destroy all the manifestations created by the lotus-born Brahma, whose merciful glance is enough to destroy all sins, who bestows the eight-powers, and who wears a garland of skulls.",
       },
