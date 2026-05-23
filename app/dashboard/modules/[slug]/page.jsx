@@ -285,7 +285,6 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
           {/* VIDEO MAIN PLAYER BLOCK */}
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 group">
             {/* AUTOMATED TAB FOCUS LOSS BLUR MASK */}
-           
 
             {!isReady && activeVideo && (
               <div
@@ -390,13 +389,37 @@ export default function DynamicVideoModulePage({ params: paramsPromise }) {
                   }`}
                 >
                   {activeTab === "lyrics" ? (
-                    <div className="text-base md:text-lg text-zinc-200 font-medium tracking-wide font-serif text-center md:text-left leading-relaxed">
-                      {renderFormattedText(activeVideo.lyrics)}
-                    </div>
+                    <>
+                      <div className="text-base md:text-lg text-zinc-200 font-medium tracking-wide font-serif text-center md:text-left leading-relaxed">
+                        {renderFormattedText(activeVideo.lyrics)}
+                      </div>
+                      {activeVideo.phalashruthi && (
+                        <>
+                          <div className=" mt-4 text-base md:text-lg text-[#D4A017] font-medium tracking-wide font-serif text-center md:text-left leading-relaxed ">
+                            Phala Shuthi:
+                          </div>
+                          <div className="text-base md:text-lg text-zinc-200 font-medium tracking-wide font-serif text-center md:text-left leading-relaxed">
+                            {renderFormattedText(activeVideo.phalashruthi)}
+                          </div>
+                        </>
+                      )}
+                    </>
                   ) : (
-                    <div className="text-sm md:text-base text-zinc-400 font-normal leading-relaxed italic text-zinc-300">
-                      {activeVideo.meaning}
-                    </div>
+                    <>
+                      <div className="text-sm md:text-base text-zinc-400 font-normal leading-relaxed italic text-zinc-300">
+                        {activeVideo.meaning}
+                      </div>
+                      {activeVideo.phalaMeaning && (
+                        <>
+                          <div className=" mt-4 text-base md:text-lg text-[#D4A017] font-medium tracking-wide font-serif text-center md:text-left leading-relaxed ">
+                            Phala Shuthi:
+                          </div>
+                          <div className="text-sm md:text-base text-zinc-400 font-normal leading-relaxed italic text-zinc-300">
+                            {activeVideo.phalaMeaning}
+                          </div>
+                        </>
+                      )}
+                    </>
                   )}
                 </div>
 

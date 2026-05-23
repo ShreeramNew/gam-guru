@@ -131,6 +131,20 @@ const VIDEO_MANIFEST = {
         meaning:
           "I sing praise of Kalabhairava, the lord of Kashi, whose loud roar is enough to destroy all the manifestations created by the lotus-born Brahma, whose merciful glance is enough to destroy all sins, who bestows the eight-powers, and who wears a garland of skulls.",
       },
+      {
+        title: "Stanza 8-Kala Bhairava Ashtakam",
+        url: "https://learning-modules-sanatan.s3.eu-north-1.amazonaws.com/KalaBhairava/day8.mp4",
+        type: "video/mp4",
+        thumbnail: getThumbnailUrl("KalaBhairava", 8),
+        lyrics:
+          "bhūta saṅgha nāyakaṃ viśāla kīrti dāyakaṃ||kāśi vāsa loka puṇya pāpa śodhakaṃ vibhum||nīti mārga kovidaṃ purātanaṃ jagatpatiṃ||kāśikā purādhinātha kālabhairavaṃ bhaje|| ",
+        meaning:
+          "I sing praise of Kalabhairava, the lord of Kashi, who is the leader of the ghosts and spirits, who showers immense glory, who absolves people dwelling in Kashi both from their sins and virtues, who is splendor, who has shown us the path of righteousness, who is eternal, and who is the lord of the universe.",
+        phalashruthi:
+          "Kaalabhairavaassttakam Patthamti Ye Manoharam||Jnyaana-Mukti-Saadhanam Vicitra-Punnya-Vardhanam||Shoka-Moha-Dainya-Lobha-Kopa-Taapa-Naashanam||Prayaanti Kaalabhairava-Amghri-Sannidhim Naraa Dhruvam||",
+        phalaMeaning:
+          "Salutations to Lord Kalabhairava, the supreme lord of Kashi. Those who read these eight verses of the Kalabhairava Ashtakam, which is beautiful, which is a source of knowledge and liberation, which increases the various forms of righteousness in a person, which destroys grief, attachment, poverty, greed, anger, and heat – will attain (after death) the feet of Lord Kalabhairava (Lord Shiva).",
+      },
     ],
   },
 };
