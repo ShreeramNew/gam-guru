@@ -107,7 +107,9 @@ export async function POST(req) {
               countryCode,
               phone: `${phone}`,
               moduleTitle,
-              amountPaid
+              amountPaid,
+              startSession,
+              endSession
             }),
             signal: AbortSignal.timeout(5000),
           },
