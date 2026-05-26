@@ -28,6 +28,7 @@ export async function POST(req) {
       razorpay_payment_id,
       razorpay_order_id,
       razorpay_signature,
+      amountPaid
     } = data;
 
     const fullName = firstName ? `${firstName} ${lastName}` : data.name;
@@ -106,6 +107,7 @@ export async function POST(req) {
               countryCode,
               phone: `${phone}`,
               moduleTitle,
+              amountPaid
             }),
             signal: AbortSignal.timeout(5000),
           },
