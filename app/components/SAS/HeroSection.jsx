@@ -10,8 +10,8 @@ export default function Hero() {
     {
       title: "Kalaripayattu",
       subtitle: "Flow & Agility",
-      icon: "🤺",
-      // Distinct 3D look with clean borders and deep colored base-shadows
+      // Swapped out abstract symbols for a traditional Indian warrior emblem (crossed swords)
+      icon: "⚔️", 
       bgClass: "bg-[#FFF6F0] border-orange-500 text-stone-900 shadow-[0_8px_0_0_#C2410C]",
       initialX: -150,
       initialY: -150,
@@ -131,13 +131,13 @@ export default function Hero() {
       {/* Left Column: Fully Realized 3D Sphere & Floating Cosmic System */}
       <div className="w-full lg:w-1/2 mt-16 lg:mt-0 h-[600px] relative z-10 flex items-center justify-center">
         
-        {/* Outer Circular Ring Ring Orbiting Around the Center Sphere */}
+        {/* Outer Circular Ring Orbiting Around the Center Sphere */}
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
           className="absolute w-[280px] h-[280px] border-2 border-dashed border-orange-400/50 rounded-full flex items-center justify-center pointer-events-none"
         >
-          {/* Glowing Planetary Orbit Node moving along the path */}
+          {/* Glowing Planetary Orbit Nodes moving along the path */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-[0_0_12px_#f59e0b]"></div>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-emerald-400 rounded-full shadow-[0_0_8px_#34d399]"></div>
         </motion.div>
