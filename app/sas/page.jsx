@@ -18,7 +18,7 @@ export default function Page() {
       <Hero />
       <FourPillars />
       <SchoolVsSanatan />
-      <OurParadigm />
+      {/* <OurParadigm /> */}
       <WhyChooseUs />
       <AreasOfLearning />
       <AudienceManifesto />
